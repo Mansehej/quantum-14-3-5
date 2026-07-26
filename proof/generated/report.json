@@ -1,0 +1,53 @@
+{
+  "claim_status": "machine-verified proof artifact; see the accompanying paper",
+  "manifest_files_excluding_manifest": 66,
+  "network_access": "not used",
+  "proof_checks": {
+    "certificates_byte_reproduced": 5,
+    "collision_lower_bound": 30,
+    "collision_upper_bounds": {
+      "independent": 12,
+      "p0": 12,
+      "p1": 13,
+      "p2": 28
+    },
+    "independent_exact_comparisons": 35,
+    "normal_forms": 4,
+    "primary": 33,
+    "python_cleanroom": 7,
+    "weight_three_words_per_form": 9828
+  },
+  "runtime": {
+    "arithmetic": "Python arbitrary-precision int and fractions.Fraction; JavaScript safe exact integers and proof-critical BigInt division; no tolerance-based or inexact decision",
+    "node": {
+      "executable": "/home/mansehej/.nvm/versions/node/v22.22.0/bin/node",
+      "sha256": "1bec56ef7cfa9a76f3e0b7c0a87f220eb73f23102b9c0b4c7529a3f7c3ce7c31",
+      "version": "v22.22.0"
+    },
+    "proof_dependencies": {
+      "javascript": "Node.js standard library only",
+      "package_manager_invocations": [],
+      "python": "standard library only",
+      "third_party": []
+    },
+    "python": {
+      "executable": "/usr/bin/python3.12",
+      "isolated": true,
+      "optimized": false,
+      "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+      "version": "Python 3.12.3"
+    },
+    "schema": "quantum-14-3-5-proof-runtime-v1"
+  },
+  "schema": "quantum-14-3-5-proof-report-v1",
+  "scope": "binary additive qubit stabilizer codes [[14,3,d>=5]], including degenerate codes",
+  "tests": {
+    "cleanroom_python_mutation_fixtures": 5,
+    "javascript_cleanroom_internal_checks": 6,
+    "primary_mutation_fixtures": 16,
+    "proof_python_tests": 27,
+    "verifier_a_tests": 10,
+    "verifier_b_tests": 9
+  },
+  "verdict": "PASS"
+}

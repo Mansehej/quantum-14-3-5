@@ -1,0 +1,6 @@
+{
+  "description": "Change the regenerated coefficient of A2 from 28 to 29.",
+  "expected_failure": "ODD.IDENTITY51",
+  "path": ["odd_identity51", "A2"],
+  "value": 29
+}

@@ -1,0 +1,307 @@
+Binary stabilizer [[14,3,5]] proof deterministic replay
+$ python3 --version
+[python-version] exit=0
+Python 3.12.3
+$ node --version
+[node-version] exit=0
+v22.22.0
+$ python3 -I -X pycache_prefix=<FRESH_TEMP>/pycache-01 <PACKAGE_ROOT>/proof/primary_checker.py --claims <PACKAGE_ROOT>/proof/claims/theorem.json --output <PACKAGE_ROOT>/proof/generated/certificate.json
+[primary] exit=0
+PASS primary checks=33 status=machine-verified
+$ python3 -I -X pycache_prefix=<FRESH_TEMP>/pycache-02 <PACKAGE_ROOT>/proof/primary_checker.py --claims <PACKAGE_ROOT>/proof/claims/theorem.json --output <FRESH_TEMP>/certificate-second.json
+[primary-byte-replay] exit=0
+PASS primary checks=33 status=machine-verified
+$ python3 -I -X pycache_prefix=<FRESH_TEMP>/pycache-03 <PACKAGE_ROOT>/proof/cleanroom_checker.py --claims <PACKAGE_ROOT>/proof/claims/theorem.json --output <PACKAGE_ROOT>/proof/generated/cleanroom_certificate.json
+[python-cleanroom] exit=0
+PASS cleanroom checks=7 status=machine-verified
+$ python3 -I -X pycache_prefix=<FRESH_TEMP>/pycache-04 <PACKAGE_ROOT>/proof/cleanroom_checker.py --claims <PACKAGE_ROOT>/proof/claims/theorem.json --output <FRESH_TEMP>/cleanroom_certificate-second.json
+[python-cleanroom-byte-replay] exit=0
+PASS cleanroom checks=7 status=machine-verified
+$ python3 -I -X pycache_prefix=<FRESH_TEMP>/pycache-05 <PACKAGE_ROOT>/proof/exact_algebra.py --json
+[exact-algebra] exit=0
+[stdout suppressed] sha256=ec709744be29b8d0cfb75da8f45f0273de50e66d688a9a42b8516471e5a94759
+$ python3 -I -X pycache_prefix=<FRESH_TEMP>/pycache-06 <PACKAGE_ROOT>/proof/exact_algebra.py --json
+[exact-algebra-byte-replay] exit=0
+[stdout suppressed] sha256=ec709744be29b8d0cfb75da8f45f0273de50e66d688a9a42b8516471e5a94759
+$ python3 -I -X pycache_prefix=<FRESH_TEMP>/pycache-07 <PACKAGE_ROOT>/proof/finite_geometry.py --json
+[finite-geometry] exit=0
+[stdout suppressed] sha256=84984e9552f5d71e6267618d980eb8aee9476bb8b384f2b5cf87d375db29b93e
+$ python3 -I -X pycache_prefix=<FRESH_TEMP>/pycache-08 <PACKAGE_ROOT>/proof/finite_geometry.py --json
+[finite-geometry-byte-replay] exit=0
+[stdout suppressed] sha256=84984e9552f5d71e6267618d980eb8aee9476bb8b384f2b5cf87d375db29b93e
+$ node <PACKAGE_ROOT>/proof/cleanroom_checker.js --json
+[javascript-cleanroom] exit=0
+[stdout suppressed] sha256=b0a4872881f88ade74a8976c7d2be6923a0afd5e94a73b13d7f7487105579b21
+$ node <PACKAGE_ROOT>/proof/cleanroom_checker.js --json
+[javascript-cleanroom-byte-replay] exit=0
+[stdout suppressed] sha256=b0a4872881f88ade74a8976c7d2be6923a0afd5e94a73b13d7f7487105579b21
+[independent comparison] 35 proof-critical exact agreements
+$ python3 -I -X pycache_prefix=<FRESH_TEMP>/pycache-09 <PACKAGE_ROOT>/proof/exact_algebra.py --self-test
+[exact-algebra-self-test] exit=0
+PASS exact_algebra
+$ node <PACKAGE_ROOT>/proof/cleanroom_checker.js --self-test
+[javascript-cleanroom-self-test] exit=0
+CLEANROOM SELF-TEST PASS
+- generated certificate validates
+- omitted normal form rejected
+- altered collision table rejected
+- omitted plane signature rejected
+$ python3 -I -X pycache_prefix=<FRESH_TEMP>/pycache-10 -m unittest discover -s <PACKAGE_ROOT>/proof/tests -p test_*.py
+[proof-python-tests] exit=0
+...........................
+----------------------------------------------------------------------
+Ran 27 tests
+
+OK
+$ node --test --test-reporter=tap <PACKAGE_ROOT>/proof/tests/cleanroom.test.js
+[javascript-cleanroom-tests] exit=0
+TAP version 13
+# cleanroom.test.js PASS (6 checks)
+# Subtest: <PACKAGE_ROOT>/proof/tests/cleanroom.test.js
+ok 1 - <PACKAGE_ROOT>/proof/tests/cleanroom.test.js
+  ---
+  duration_ms: <normalized>
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms <normalized>
+$ python3 -I -X pycache_prefix=<FRESH_TEMP>/pycache-11 <PACKAGE_ROOT>/verifier_a/test_verifier.py
+[verifier-a-tests] exit=0
+PASS standard_five_qubit_code
+PASS table_fourteen_qubit_code
+PASS duplicate_row_rank_corruption
+PASS one_bit_commutation_corruption
+PASS low_weight_logical_rejected
+PASS low_weight_stabilizer_excluded
+PASS dimension_and_bit_validation
+PASS literal_parser
+PASS gray_span_enumerator
+PASS random_small_n_full_pauli_crosscheck
+RANDOM seed=14003005 cases=30
+SUMMARY passed=10 total=10
+$ node --test --test-reporter=tap <PACKAGE_ROOT>/verifier_b/test/verifier-b.test.js
+[verifier-b-tests] exit=0
+TAP version 13
+# Subtest: parser accepts comments and rejects malformed or unequal Pauli rows
+ok 1 - parser accepts comments and rejects malformed or unequal Pauli rows
+  ---
+  duration_ms: <normalized>
+  type: 'test'
+  ...
+# Subtest: single-qubit Pauli multiplication and commutation are explicit
+ok 2 - single-qubit Pauli multiplication and commutation are explicit
+  ---
+  duration_ms: <normalized>
+  type: 'test'
+  ...
+# Subtest: standard [[5,1,3]] code passes exact structural and distance checks
+ok 3 - standard [[5,1,3]] code passes exact structural and distance checks
+  ---
+  duration_ms: <normalized>
+  type: 'test'
+  ...
+# Subtest: table [[14,3,4]] Pauli transcription has rank 11 and exact distance four
+ok 4 - table [[14,3,4]] Pauli transcription has rank 11 and exact distance four
+  ---
+  duration_ms: <normalized>
+  type: 'test'
+  ...
+# Subtest: duplicate generator is detected from the stabilizer product count
+ok 5 - duplicate generator is detected from the stabilizer product count
+  ---
+  duration_ms: <normalized>
+  type: 'test'
+  ...
+# Subtest: one-symbol corruption is rejected for anticommutation
+ok 6 - one-symbol corruption is rejected for anticommutation
+  ---
+  duration_ms: <normalized>
+  type: 'test'
+  ...
+# Subtest: valid code with a weight-one logical fails a distance-three claim
+ok 7 - valid code with a weight-one logical fails a distance-three claim
+  ---
+  duration_ms: <normalized>
+  type: 'test'
+  ...
+# Subtest: low-weight commuting stabilizer is membership, not a logical failure
+ok 8 - low-weight commuting stabilizer is membership, not a logical failure
+  ---
+  duration_ms: <normalized>
+  type: 'test'
+  ...
+# Subtest: target checker requires no logicals below d and at least one at d
+ok 9 - target checker requires no logicals below d and at least one at d
+  ---
+  duration_ms: <normalized>
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms <normalized>
+$ node <PACKAGE_ROOT>/verifier_b/src/cli.js <PACKAGE_ROOT>/verifier_b/fixtures/5_1_3.pauli --max-weight 5 --expect-n 5 --expect-k 1 --expect-distance 3
+[verifier-b-five-qubit-calibration] exit=0
+{
+  "verifier": "verifier-b-pauli-native-v1",
+  "input": "<PACKAGE_ROOT>/verifier_b/fixtures/5_1_3.pauli",
+  "report": {
+    "representation": "phase-free Pauli strings over I/X/Y/Z",
+    "n": 5,
+    "generatorCount": 4,
+    "subsetProductCount": 16,
+    "uniqueStabilizerProducts": 16,
+    "generatorRank": 4,
+    "independent": true,
+    "pairwiseCommuting": true,
+    "anticommutingPairs": [],
+    "validStabilizer": true,
+    "k": 1,
+    "maxWeightScanned": 5,
+    "weightCounts": [
+      {
+        "weight": 0,
+        "totalErrors": 1,
+        "commutingCount": 1,
+        "stabilizerCount": 1,
+        "logicalCount": 0
+      },
+      {
+        "weight": 1,
+        "totalErrors": 15,
+        "commutingCount": 0,
+        "stabilizerCount": 0,
+        "logicalCount": 0
+      },
+      {
+        "weight": 2,
+        "totalErrors": 90,
+        "commutingCount": 0,
+        "stabilizerCount": 0,
+        "logicalCount": 0
+      },
+      {
+        "weight": 3,
+        "totalErrors": 270,
+        "commutingCount": 30,
+        "stabilizerCount": 0,
+        "logicalCount": 30
+      },
+      {
+        "weight": 4,
+        "totalErrors": 405,
+        "commutingCount": 15,
+        "stabilizerCount": 15,
+        "logicalCount": 0
+      },
+      {
+        "weight": 5,
+        "totalErrors": 243,
+        "commutingCount": 18,
+        "stabilizerCount": 0,
+        "logicalCount": 18
+      }
+    ],
+    "minLogicalWeight": 3,
+    "logicalWitness": "XYXII"
+  },
+  "expectedCodeCheck": {
+    "expected": {
+      "n": 5,
+      "k": 1,
+      "distance": 3
+    },
+    "pass": true,
+    "failures": []
+  }
+}
+$ node <PACKAGE_ROOT>/verifier_b/src/cli.js <PACKAGE_ROOT>/verifier_b/fixtures/14_3_4.pauli --max-weight 5 --expect-n 14 --expect-k 3 --expect-distance 4
+[verifier-b-fourteen-qubit-calibration] exit=0
+{
+  "verifier": "verifier-b-pauli-native-v1",
+  "input": "<PACKAGE_ROOT>/verifier_b/fixtures/14_3_4.pauli",
+  "report": {
+    "representation": "phase-free Pauli strings over I/X/Y/Z",
+    "n": 14,
+    "generatorCount": 11,
+    "subsetProductCount": 2048,
+    "uniqueStabilizerProducts": 2048,
+    "generatorRank": 11,
+    "independent": true,
+    "pairwiseCommuting": true,
+    "anticommutingPairs": [],
+    "validStabilizer": true,
+    "k": 3,
+    "maxWeightScanned": 5,
+    "weightCounts": [
+      {
+        "weight": 0,
+        "totalErrors": 1,
+        "commutingCount": 1,
+        "stabilizerCount": 1,
+        "logicalCount": 0
+      },
+      {
+        "weight": 1,
+        "totalErrors": 42,
+        "commutingCount": 2,
+        "stabilizerCount": 2,
+        "logicalCount": 0
+      },
+      {
+        "weight": 2,
+        "totalErrors": 819,
+        "commutingCount": 1,
+        "stabilizerCount": 1,
+        "logicalCount": 0
+      },
+      {
+        "weight": 3,
+        "totalErrors": 9828,
+        "commutingCount": 0,
+        "stabilizerCount": 0,
+        "logicalCount": 0
+      },
+      {
+        "weight": 4,
+        "totalErrors": 81081,
+        "commutingCount": 105,
+        "stabilizerCount": 0,
+        "logicalCount": 105
+      },
+      {
+        "weight": 5,
+        "totalErrors": 486486,
+        "commutingCount": 594,
+        "stabilizerCount": 6,
+        "logicalCount": 588
+      }
+    ],
+    "minLogicalWeight": 4,
+    "logicalWitness": "XXXXIIIIIIIIII"
+  },
+  "expectedCodeCheck": {
+    "expected": {
+      "n": 14,
+      "k": 3,
+      "distance": 4
+    },
+    "pass": true,
+    "failures": []
+  }
+}
+[report] generated/report.json and REPORT.txt written
+[manifest] coverage prepared for 66 files
+[result] PROOF REPLAY PASS

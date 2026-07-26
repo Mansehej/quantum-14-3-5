@@ -1,0 +1,6 @@
+{
+  "description": "Change the independently enumerated extension-shadow incidence.",
+  "expected_failure": "EXT.SHADOW_INCIDENCE_8D",
+  "path": ["shadow_incidence_8d", "eligible_incidence_min"],
+  "value": 29
+}

@@ -1,0 +1,2 @@
+# Stabilizer ZI.  The unfixed second qubit supplies weight-one logicals.
+00|10

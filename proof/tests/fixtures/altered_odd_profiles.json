@@ -1,0 +1,12 @@
+{
+  "description": "Replace the surviving odd profile (0,1) with (0,2).",
+  "expected_failure": "ODD.PROFILES",
+  "path": [
+    "odd_profiles",
+    0
+  ],
+  "value": [
+    0,
+    2
+  ]
+}

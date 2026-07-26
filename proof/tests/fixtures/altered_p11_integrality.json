@@ -1,0 +1,10 @@
+{
+  "description": "Change the first forced p11 shadow value required_S2 from 1/4 to 1/3.",
+  "expected_failure": "P11.INTEGRALITY",
+  "path": [
+    "p11_integrality",
+    0,
+    "required_S2"
+  ],
+  "value": "1/3"
+}

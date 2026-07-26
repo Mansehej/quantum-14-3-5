@@ -1,0 +1,7 @@
+# A [[5,1,3]] code tensored with a |0> ancilla.
+# IIIIIZ is a weight-one stabilizer, not a weight-one logical.
+XZZXII
+IXZZXI
+XIXZZI
+ZXIXZI
+IIIIIZ

@@ -1,0 +1,219 @@
+{
+  "lagrangian_incidence": {
+    "ambient_dimension": 6,
+    "double_count": 1080,
+    "incidence_per_nonzero_point": 15,
+    "lagrangian_count": 135,
+    "lagrangian_dimension": 3,
+    "nonzero_point_count": 63,
+    "quadratic_even_shift_count": 36,
+    "quadratic_odd_shift_count": 28,
+    "singular_lagrangians_per_even_shift": 30,
+    "singular_lagrangians_per_odd_shift": 0,
+    "singular_shifts_per_lagrangian": 8
+  },
+  "p01_finite_bounds": {
+    "S1_at_most_one": {
+      "bound": 1,
+      "checked_pairs": 861,
+      "maximum_difference_weight": 2
+    },
+    "S1_bounds_S3": {
+      "checked_S1_words": 42,
+      "fixed_A4": "XXXXIIIIIIIIII",
+      "maximum_compatible_S3_words": 1
+    },
+    "S1_excludes_S2": {
+      "checked_pairs": 34398,
+      "maximum_difference_weight": 3
+    },
+    "S2_equals_one_restriction": {
+      "admissible_weight3_words": 5940,
+      "all_supports_disjoint": true,
+      "available_coordinate_pauli_bins": 36,
+      "canonical_S2": "XXIIIIIIIIIIII"
+    },
+    "low_weight_word_counts": {
+      "weight1": 42,
+      "weight2": 819,
+      "weight3": 9828
+    },
+    "repeated_coordinate_pauli_incidence": {
+      "L_bound_with_S2": 12,
+      "L_bound_without_S2": 14,
+      "bins_with_S2": 36,
+      "bins_without_S2": 42,
+      "integer_inequality_checks": 5402
+    },
+    "unique_A4_translation_pairs": {
+      "colliding_orbit_count_before_distance_filter": 90,
+      "compatible_pairs_of_distinct_colliding_orbits": 0,
+      "maximum_colliding_orbits_after_distance_filter": 1,
+      "pair_type_counts": {
+        "t=2,different=0,shared_bins=1": 90,
+        "t=3,different=2,shared_bins=0": 24
+      }
+    }
+  },
+  "p03_normal_forms": {
+    "commuting_weight4_candidates": 43720,
+    "fixed_first_word": "XXXXIIIIIIIIII",
+    "local_clifford_permutation_normal_forms": {
+      "rank2_p0_t4_q0": {
+        "generators": [
+          "XXXXIIIIIIIIII",
+          "ZZZZIIIIIIIIII",
+          "YYYYIIIIIIIIII"
+        ],
+        "rank": 2,
+        "signature": [
+          4,
+          0
+        ]
+      },
+      "rank2_p1_t3_q1": {
+        "generators": [
+          "XIXXXIIIIIIIII",
+          "IXXZZIIIIIIIII",
+          "XXIYYIIIIIIIII"
+        ],
+        "rank": 2,
+        "signature": [
+          3,
+          1
+        ]
+      },
+      "rank2_p2_t2_q2": {
+        "generators": [
+          "XXIIXXIIIIIIII",
+          "IIXXXXIIIIIIII",
+          "XXXXIIIIIIIIII"
+        ],
+        "rank": 2,
+        "signature": [
+          2,
+          2
+        ]
+      },
+      "rank3_disjoint": {
+        "generators": [
+          "XXXXIIIIIIIIII",
+          "IIIIXXXXIIIIII",
+          "IIIIIIIIXXXXII"
+        ],
+        "pairwise_disjoint": true,
+        "rank": 3
+      }
+    },
+    "normal_form_count": 4,
+    "rank2_complete_signatures": [
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        0
+      ]
+    ],
+    "rank2_signature_counts": {
+      "2,2": 2430,
+      "3,1": 1440,
+      "4,0": 16
+    },
+    "rank3_allowed_pair_signatures_given_no_A5_A6": [
+      [
+        0,
+        0
+      ]
+    ]
+  },
+  "quadratic_and_shadow_coset": {
+    "ambient_n14_gauss_magnitude": 16384,
+    "canonical_coset_dimension": 6,
+    "local_fourier_transform": {
+      "I": -2,
+      "X": 2,
+      "Y": 2,
+      "Z": 2
+    },
+    "normalizer_translation_preserves_shadow": true,
+    "quadratic_local_cases": 16,
+    "quotient_dimension6_gauss_magnitude": 8,
+    "shadow_coset_size": 32,
+    "shadow_plus_shadow_equals_normalizer": true,
+    "subspace_size": 32
+  },
+  "representation": {
+    "addition": "coordinatewise XOR; phase discarded",
+    "arithmetic": "integers only",
+    "pauli_encoding": {
+      "I": 0,
+      "X": 1,
+      "Y": 3,
+      "Z": 2
+    }
+  },
+  "weight3_collision_enumeration": {
+    "formula": "C(14,3)*3^3",
+    "normal_forms": {
+      "rank2_p0_t4_q0": {
+        "collision_pair_upper_bound": 12,
+        "contradiction": true,
+        "degree_histogram_d0_to_d3": [
+          9288,
+          540,
+          0,
+          0
+        ],
+        "maximum_degree": 1,
+        "required_collision_pairs": 30,
+        "top_24_degree_sum": 24
+      },
+      "rank2_p1_t3_q1": {
+        "collision_pair_upper_bound": 13,
+        "contradiction": true,
+        "degree_histogram_d0_to_d3": [
+          9290,
+          537,
+          0,
+          1
+        ],
+        "maximum_degree": 3,
+        "required_collision_pairs": 30,
+        "top_24_degree_sum": 26
+      },
+      "rank2_p2_t2_q2": {
+        "collision_pair_upper_bound": 28,
+        "contradiction": true,
+        "degree_histogram_d0_to_d3": [
+          9376,
+          372,
+          72,
+          8
+        ],
+        "maximum_degree": 3,
+        "required_collision_pairs": 30,
+        "top_24_degree_sum": 56
+      },
+      "rank3_disjoint": {
+        "collision_pair_upper_bound": 12,
+        "contradiction": true,
+        "degree_histogram_d0_to_d3": [
+          9288,
+          540,
+          0,
+          0
+        ],
+        "maximum_degree": 1,
+        "required_collision_pairs": 30,
+        "top_24_degree_sum": 24
+      }
+    },
+    "weight3_word_count": 9828
+  }
+}

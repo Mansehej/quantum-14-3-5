@@ -1,0 +1,9 @@
+{
+  "description": "Replace the first required check id with one no checker implements.",
+  "expected_failure": "COVERAGE.REQUIRED",
+  "path": [
+    "required_checks",
+    0
+  ],
+  "value": "FAKE.NOT_IMPLEMENTED"
+}

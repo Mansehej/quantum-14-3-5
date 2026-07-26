@@ -1,0 +1,10 @@
+{
+  "description": "Change the scaled all-even elimination relation coefficient of A2 from 160 to 161.",
+  "expected_failure": "EVEN.RREF",
+  "path": [
+    "even",
+    "elimination_relation",
+    0
+  ],
+  "value": 161
+}

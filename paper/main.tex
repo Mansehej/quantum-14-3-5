@@ -1,0 +1,944 @@
+%% ---------------------------------------------------------------------------
+%% There is no [[14,3,5]] quantum stabilizer code
+%%
+%% TODO before submission:
+%%   1. Choose an arXiv license at submission time (see Section 9 notes).
+%%   2. Optionally add a Zenodo DOI for the tagged artifact release.
+%% ---------------------------------------------------------------------------
+\documentclass[11pt]{amsart}
+
+\usepackage{amssymb}
+\usepackage[margin=1.2in]{geometry}
+\usepackage{booktabs}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\DeclareMathOperator{\wt}{wt}
+\DeclareMathOperator{\rk}{rank}
+\DeclareMathOperator{\Sh}{Sh}
+\DeclareMathOperator{\supp}{supp}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\perps}{{\perp_s}}
+\newcommand{\sform}[2]{\langle #1,#2\rangle_s}
+\newcommand{\code}[1]{[\![#1]\!]}
+
+\begin{document}
+
+\title[There is no \code{14,3,5} code]{There is no $\code{14,3,5}$ quantum stabilizer code}
+
+\author{Mansehej Singh}
+\email{mansehej@yuzu.so}
+
+\date{July 26, 2026}
+
+\subjclass[2020]{81P73, 94B65, 94B05}
+\keywords{quantum error correction, stabilizer codes, additive codes over GF(4),
+shadow enumerators, nonexistence, computer-assisted proof}
+
+\begin{abstract}
+We prove that there is no binary quantum stabilizer code with parameters
+$\code{14,3,5}$, degenerate codes included: no $11$-dimensional isotropic
+subspace $C\subseteq\F_2^{28}$ satisfies
+$\min\{\wt(v):v\in C^{\perps}\setminus C\}\ge 5$.  Consequently the optimal
+minimum distance of a $14$-qubit stabilizer code encoding $3$ logical qubits
+is exactly $4$, closing a gap that has stood in the code tables since
+Calderbank, Rains, Shor, and Sloane (1998).  Since the linear-programming
+bound for these parameters is $5$, the proof necessarily goes beyond linear
+programming.  Candidates are split by the parity of stabilizer weights.
+All-even stabilizers are eliminated by MacWilliams identities and
+integrality alone.  For odd stabilizers we combine Rains' shadow enumerator
+with two averaging identities over the $135$ self-dual extensions of the
+code---for the weight enumerator, and, via an incidence computation in an
+eight-dimensional orthogonal geometry of plus type, for the shadow---to
+force one of three low-weight stabilizer profiles, each of which is then
+eliminated by integrality or by counting coordinate collisions among the
+weight-three shadow words.  Every target-specific computation is finite,
+exact, and machine-verified by independent implementations; a one-command
+replay artifact accompanies the paper.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}\label{sec:intro}
+
+A binary quantum stabilizer code $\code{n,k,d}$ encodes $k$ logical qubits
+into $n$ physical qubits with minimum distance $d$
+\cite{Gottesman1997,CRSS1998}.  For $n=14$ and $k=3$ the best construction
+known has distance $4$, while the strongest upper bound known---the
+linear-programming bound with shadow constraints---allows distance $5$.
+The gap $4\le d_{\max}(14,3)\le 5$ appears already in Table~III of
+Calderbank, Rains, Shor, and Sloane \cite{CRSS1998} and has remained open
+in Grassl's online tables \cite{Grassl} since.  This paper closes it.
+
+\begin{theorem}\label{thm:main}
+There is no $11$-dimensional isotropic subspace $C\subseteq\F_2^{28}$ with
+\[
+\min\{\wt(v):v\in C^{\perps}\setminus C\}\ \ge\ 5 .
+\]
+Equivalently, there is no binary qubit stabilizer code $\code{14,3,5}$.
+The statement includes degenerate (impure) codes and assumes no purity,
+CSS structure, $\mathrm{GF}(4)$-linearity, or symmetry.
+\end{theorem}
+
+\begin{corollary}\label{cor:tables}
+The optimal minimum distance of a binary stabilizer code with $n=14$ and
+$k=3$ is exactly $4$, and the known $\code{14,3,4}$ codes are optimal.
+\end{corollary}
+
+Because the linear-programming bound admits a (rational) solution at
+distance $5$, no proof of Theorem~\ref{thm:main} can proceed by linear
+inequalities on weight enumerators alone; integrality and structural
+information must enter.  Our argument is in the tradition of the
+integrality refinements of \cite[\S 7]{CRSS1998} (e.g.\ the nonexistence
+of a $\code{13,0,6}$ code) and of Rains' shadow theory
+\cite{Rains1999Shadow}---compare the classical shadow bounds for self-dual
+codes \cite{RainsSloane1998} and the nonexistence proof of Lam and Pless
+\cite{LamPless1990}---and adds two ingredients that we believe are of
+independent interest for small-parameter classification problems:
+
+\begin{enumerate}
+\item \emph{Self-dual extension averaging.}  A $\code{14,3}$ stabilizer,
+viewed as an $11$-dimensional isotropic subspace $C$, lies in exactly $135$
+self-dual (Lagrangian) extensions $D$, and the average of their weight
+enumerators is the exact linear expression $(8A+B)/9$ in the enumerators
+$A$ of $C$ and $B$ of $C^{\perps}$ (Lemma~\ref{lem:ext}).
+
+\item \emph{Extension-shadow averaging.}  When the stabilizer contains
+odd-weight elements, the shadows of those $135$ self-dual extensions
+average, coefficientwise, to $\tfrac29 S_j$ for even $j$ and $0$ for odd
+$j$, where $S$ is the shadow enumerator of $C$ itself
+(Theorem~\ref{thm:tbar}).  The constant $\tfrac29=\tfrac{30}{135}$ is an
+incidence number in the orthogonal geometry $O^+(8,2)$, verified by exhaustive
+enumeration.
+\end{enumerate}
+
+Feeding both identities into the MacWilliams framework forces, for any
+putative distance-$5$ code with an odd-weight stabilizer element, the
+low-weight stabilizer profile
+$(A_2,A_4)\in\{(0,1),(0,3),(1,1)\}$ with $A_1=A_3=0$
+(Corollary~\ref{cor:profiles}); all-even stabilizers die earlier, by a
+five-equation MacWilliams elimination (Proposition~\ref{prop:even}).  The
+three surviving profiles are then eliminated in
+Sections~\ref{sec:p11}--\ref{sec:p03}: profile $(1,1)$ forces the shadow
+coefficient $S_2$ to be $\tfrac14$ or $\tfrac12$, contradicting
+integrality; profiles $(0,1)$ and $(0,3)$ are destroyed by counting
+\emph{collisions}---pairs of weight-three shadow words that agree in some
+coordinate---which the shadow-coset structure simultaneously forces from
+below and, after a local-Clifford normal-form classification of the
+weight-four stabilizers, bounds from above.
+
+The proof is computer-assisted in the following precise sense.  The
+conceptual bridge---the lemmas of
+Sections~\ref{sec:prelim}--\ref{sec:profiles}---is human-readable
+mathematics and is proved in full in this paper.  Every target-specific
+number (Krawtchouk coefficients, row reductions, the $135$ Lagrangians and
+their incidences, the $O^+(8,2)$ shadow incidence, the $90$ translation
+pairs, the $9{,}828$ weight-three words and their collision graphs) is a
+finite exact computation, performed by five independently written
+implementations in two languages, cross-compared, mutation-tested, and
+replayable offline by one command (Section~\ref{sec:verification}).  No
+floating-point arithmetic and no external solver are used anywhere.
+
+\subsection*{Methodology disclosure}
+The mathematical argument and all verification software were produced by
+AI systems (Claude, Anthropic) in an autonomous research campaign, and were
+then subjected to an extensive independent, adversarial, multi-agent
+verification campaign (Section~\ref{sec:verification}).  In accordance with
+arXiv policy no AI system is listed as an author; the human author has
+reviewed the argument and assumes full responsibility for its correctness.
+
+\section{Preliminaries}\label{sec:prelim}
+
+\subsection{Stabilizer codes as isotropic subspaces}
+Write vectors of $P=\F_2^{2n}$ as $v=(x\mid z)$ with $x,z\in\F_2^n$, and
+equip $P$ with the symplectic form
+\[
+\sform{(x\mid z)}{(x'\mid z')}=x\cdot z'+z\cdot x' \pmod 2 .
+\]
+The \emph{Pauli weight} is
+$\wt(x\mid z)=\#\{i:(x_i,z_i)\neq(0,0)\}$, via the coordinate map
+$(0,0)\mapsto I$, $(1,0)\mapsto X$, $(0,1)\mapsto Z$, $(1,1)\mapsto Y$.
+After discarding phases, an $n$-qubit stabilizer group with $r$ independent
+generators and $-I$ not contained in it corresponds exactly to an
+$r$-dimensional \emph{isotropic} subspace $C\subseteq P$ (two Paulis
+commute iff their symplectic product vanishes), and conversely every
+isotropic subspace lifts to such a group \cite{Gottesman1997,CRSS1998}.
+(For a geometric survey of stabilizer codes see
+\cite{BallCentellesHuber}.)  The code has $k=n-r$ logical qubits, and its
+minimum distance is
+\[
+d=\min\{\wt(v):v\in C^{\perps}\setminus C\},
+\]
+where $C^{\perps}$ is the symplectic dual.  This is the standard
+definition for possibly \emph{degenerate} codes: low-weight vectors
+\emph{inside} $C$ are harmless, and only low-weight vectors of
+$C^{\perps}\setminus C$ reduce the distance.  Throughout, $n=14$, $r=11$,
+$k=3$, so $\dim C^{\perps}=17$, and we assume
+\begin{equation}\label{eq:distance}
+\min\{\wt(v):v\in C^{\perps}\setminus C\}\ \ge\ 5 ,
+\end{equation}
+deriving a contradiction.  Since a $\code{14,3,5}$ code satisfies
+\eqref{eq:distance}, this proves Theorem~\ref{thm:main}.
+
+\subsection{Weight enumerators and MacWilliams identities}
+Let $A_i=\#\{c\in C:\wt(c)=i\}$ and $B_j=\#\{v\in C^{\perps}:\wt(v)=j\}$,
+for $0\le i,j\le 14$.  Character orthogonality gives the MacWilliams
+identities for additive codes \cite{CRSS1998}: with the quaternary
+Krawtchouk polynomials
+\begin{equation}\label{eq:kraw}
+K_j(i)=\sum_{t}(-1)^t3^{\,j-t}\binom{i}{t}\binom{14-i}{j-t},
+\end{equation}
+we have
+\begin{equation}\label{eq:mw}
+B_j=\frac{1}{|C|}\sum_{i=0}^{14}A_iK_j(i),\qquad |C|=2^{11}=2048 .
+\end{equation}
+The inclusion $C\subseteq C^{\perps}$ gives $B_j\ge A_j$ for all $j$, and
+the distance assumption \eqref{eq:distance} upgrades this to equality at
+the bottom:
+\begin{equation}\label{eq:dist-eq}
+B_j=A_j \qquad (1\le j\le 4),
+\end{equation}
+because any word of $C^{\perps}$ of weight between $1$ and $4$ must lie in
+$C$.  We emphasize that \eqref{eq:dist-eq} permits $A_1,\dots,A_4>0$
+a priori: degeneracy is not excluded, it is carried through the argument.
+
+\subsection{The parity quadratic form}
+Define $q(v)=\wt(v)\bmod 2$.
+
+\begin{lemma}\label{lem:q}
+$q$ is a quadratic refinement of the symplectic form:
+\[
+q(u+v)=q(u)+q(v)+\sform{u}{v} \qquad (u,v\in P).
+\]
+Consequently $q$ restricted to an isotropic subspace $C$ is linear; if $C$
+contains an odd-weight word, then $C_0=\ker(q|_C)$ has index $2$ in $C$,
+and for our parameters $\dim C_0=10$.
+\end{lemma}
+
+\begin{proof}
+Both sides are additive over coordinates, so it suffices to check the
+identity on one coordinate, i.e.\ for the sixteen ordered pairs in
+$\{I,X,Y,Z\}^2$: the weight parity of a product of two one-qubit Paulis
+differs from the sum of their weight parities exactly when the two factors
+are distinct non-identity Paulis, which is exactly when they anticommute.
+(The artifact check \texttt{ALG.QFORM.POLAR} repeats all sixteen cases.)
+On isotropic $C$ the polar term vanishes, so $q|_C$ is linear.
+\end{proof}
+
+Under the orthogonal sum decomposition of $(P,q)$ into $14$ coordinate
+planes, each plane is anisotropic (all three nonzero vectors have $q=1$),
+hence has Arf invariant $1$; the Arf invariant of $P$ is therefore
+$14\bmod 2=0$, i.e.\ $(P,q)$ is of \emph{plus type}.  We use this in
+Lemma~\ref{lem:witt}.
+
+Every candidate $C$ now falls into exactly one of two branches: the
+\emph{all-even branch} ($q|_C\equiv 0$) and the \emph{odd branch}
+($C$ contains an odd-weight word).  Section~\ref{sec:even} eliminates the
+former; the rest of the paper eliminates the latter.
+
+\section{The all-even branch}\label{sec:even}
+
+\begin{proposition}\label{prop:even}
+No $11$-dimensional isotropic $C\subseteq\F_2^{28}$ with all weights even
+satisfies \eqref{eq:distance}.
+\end{proposition}
+
+\begin{proof}
+Assume the contrary.  Then $A_i=0$ for odd $i$, leaving the seven unknowns
+$A_2,A_4,\dots,A_{14}$ (with $A_0=1$), subject to five affine equations:
+$\sum_{i}A_i=2048$, and the four distance equations obtained by combining
+\eqref{eq:mw} with \eqref{eq:dist-eq},
+\[
+\sum_{i\ \mathrm{even}}A_i\bigl(K_j(i)-2048\,\delta_{ij}\bigr)=-K_j(0)
+\qquad (1\le j\le 4).
+\]
+Exact rational row reduction of this system (artifact check
+\texttt{EVEN.RREF}) leaves the two free parameters $p=A_{12}$, $q=A_{14}$
+and expresses
+\[
+40A_2=-1145+p+6q,\qquad
+10A_4=-35+p-14q,\qquad
+20A_6=4965-13p+102q .
+\]
+Multiplying the target combination by ten and substituting,
+\[
+160A_2+90A_4+20A_6
+=4(-1145+p+6q)+9(-35+p-14q)+(4965-13p+102q)=70 ,
+\]
+where both $p$ and $q$ cancel.  Hence every solution satisfies the single
+relation
+\begin{equation}\label{eq:even-relation}
+16A_2+9A_4+2A_6=7 .
+\end{equation}
+All coefficients are positive and all $A_i$ are nonnegative integers, so
+$16A_2\le 7$ forces $A_2=0$, then $9A_4\le7$ forces $A_4=0$, and
+$2A_6=7$ is impossible modulo $2$.
+\end{proof}
+
+\section{Shadows, self-dual extensions, and the averaging identities}
+\label{sec:shadow}
+
+For the remainder of the paper $C$ is an $11$-dimensional isotropic
+subspace satisfying \eqref{eq:distance} whose weight function is not
+identically even, and $C_0=\ker(q|_C)$, $\dim C_0=10$.
+
+\subsection{The shadow of $C$}
+
+\begin{definition}
+The \emph{shadow} of $C$ is the set
+$\mathcal S=C_0^{\perps}\setminus C^{\perps}$, with weight enumerator
+$S_j=\#\{s\in\mathcal S:\wt(s)=j\}$.
+\end{definition}
+
+\begin{lemma}\label{lem:shadow}
+Let $E$ be the weight enumerator of $C_0^{\perps}$.  Then
+\begin{equation}\label{eq:eshadow}
+E_j=\frac{1}{|C_0|}\sum_{i\ \mathrm{even}}A_iK_j(i),
+\qquad
+S_j=E_j-B_j=\frac{1}{|C|}\sum_{i=0}^{14}(-1)^iA_iK_j(i) .
+\end{equation}
+Moreover $\mathcal S$ is the nontrivial coset of $C^{\perps}$ in
+$C_0^{\perps}$; in particular
+$\mathcal S+\mathcal S\subseteq C^{\perps}$ and
+$\mathcal S+C^{\perps}=\mathcal S$, every shadow word commutes with
+$C_0$, and every shadow word has symplectic product $1$ with every
+odd-weight word of $C$.
+\end{lemma}
+
+\begin{proof}
+The first formula is \eqref{eq:mw} applied to $C_0$, whose weights are
+exactly the even weights of $C$ with the same multiplicities, and
+$|C_0|=|C|/2$.  Since $C_0\subset C$ has index $2$, dually
+$C^{\perps}\subset C_0^{\perps}$ has index $2$; the shadow is the
+nontrivial coset and $S=E-B$; subtracting \eqref{eq:mw} from
+\eqref{eq:eshadow} flips the sign of the odd-$i$ terms, giving the signed
+transform.  The coset properties
+are immediate, and a shadow word $s$ lies in $C_0^{\perps}$ but not
+$C^{\perps}$, so $\sform{s}{\cdot}$ vanishes on $C_0$ and is $1$ on the odd
+coset $C\setminus C_0$.
+\end{proof}
+
+This is Rains' quantum shadow \cite{Rains1999Shadow} in binary symplectic
+language.  Note $S_j\ge0$, and $E_j=B_j+S_j\ge A_j$, always.
+
+\subsection{Self-dual extensions and the enumerator average}
+
+The quotient $V=C^{\perps}/C$ is a nondegenerate symplectic space of
+dimension $2k=6$.
+
+\begin{lemma}\label{lem:ext}
+Self-dual subspaces $D$ with $C\subset D=D^{\perps}$ correspond bijectively
+to Lagrangian (maximal isotropic, $3$-dimensional) subspaces of $V$.
+There are exactly $135$ of them; each nonzero point of $V$ lies in exactly
+$15$.  Consequently, writing $N^{(D)}$ for the weight enumerator of $D$,
+\begin{equation}\label{eq:nbar}
+\overline N \;=\;\frac{1}{135}\sum_{D}N^{(D)}\;=\;\frac{8A+B}{9}
+\qquad\text{coefficientwise.}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+The symplectic form descends to $V$ and is nondegenerate.  If
+$\bar L\subseteq V$ is Lagrangian, its preimage $D$ satisfies
+$\dim D=11+3=14=n$ and is isotropic, hence $D=D^{\perps}$; the
+correspondence inverts by taking quotients.  The counts---$135$
+Lagrangians among the $1395$ three-dimensional subspaces of $\F_2^6$, with
+every one of the $63$ nonzero points on exactly $15$ of them---are an
+exhaustive enumeration (artifact check \texttt{EXT.LAGRANGIAN\_6D};
+$135\cdot 7=63\cdot 15=945$).  For the average: a word of $C$ lies in all
+$135$ extensions, while a word of $C^{\perps}\setminus C$ maps to a
+nonzero point of $V$ and lies in exactly the $15$ extensions through that
+point.  Hence
+$\sum_D N^{(D)}=135A+15(B-A)$, which is \eqref{eq:nbar}.
+\end{proof}
+
+Each $D$ is a self-dual additive code of length $14$
+\cite{CRSS1998,NRS2006}; its enumerator is a fixed point of the
+MacWilliams transform.  Applying the transform to
+\eqref{eq:nbar} yields an identity that is automatically satisfied, so
+\eqref{eq:nbar} alone adds no linear information beyond \eqref{eq:mw}.
+The new information comes from the \emph{shadows} of the extensions.
+
+\subsection{The quotient geometry and the extension--shadow average}
+
+Every extension $D$ contains the odd coset of $C$, hence is an odd code;
+let $D_0$ be its even kernel ($\dim D_0=13$) and
+$\Sh(D)=D_0^{\perps}\setminus D$ its shadow, a set of $2^{14}$ words with
+enumerator $T^{(D)}$.  By Lemma~\ref{lem:shadow} applied to $D$,
+\begin{equation}\label{eq:tshadow}
+T^{(D)}_j=\frac{1}{2^{14}}\sum_i(-1)^iN^{(D)}_iK_j(i).
+\end{equation}
+
+Consider now $W=C_0^{\perps}/C_0$, a nondegenerate symplectic space of
+dimension $8$.  Since $q(v+c)=q(v)+q(c)+\sform{v}{c}=q(v)$ for $c\in C_0$
+and $v\in C_0^{\perps}$, the parity form $q$ descends to $W$.
+
+\begin{lemma}[Witt reduction]\label{lem:witt}
+$(W,q)$ is a nondegenerate quadratic space of plus type, isometric to
+$\F_2^4\oplus\F_2^4$ with $q(x\mid z)=x\cdot z$.  The class
+$r=C\setminus C_0\in W$ is anisotropic: $q(r)=1$.
+\end{lemma}
+
+\begin{proof}
+Choose a nonzero $e\in C_0$; it is singular ($q(e)=0$).  By nondegeneracy
+of $P$ pick $g$ with $\sform{e}{g}=1$; if $q(g)=1$ replace $g$ by $g+e$,
+which satisfies $q(g+e)=q(g)+q(e)+\sform{g}{e}=0$.  For every other basis
+vector $c$ of $C_0$ with $\sform{c}{g}=1$, replace $c$ by $c+e$: this
+keeps it singular ($q(c+e)=q(c)+q(e)+\sform{c}{e}=0$) and makes it
+perpendicular to the hyperbolic plane $H=\langle e,g\rangle$.  Restrict to
+$H^{\perp}$ (again nondegenerate) and iterate through a basis of $C_0$.
+After ten steps we have split off ten hyperbolic planes, each of Arf
+invariant $0$, containing a basis of $C_0$; the Arf invariant is additive
+over orthogonal sums and classifies nondegenerate quadratic forms over
+$\F_2$ \cite{Grove2002}, and the ambient Arf invariant is $0$
+(Section~\ref{sec:prelim}), so the orthogonal remainder $R$ of dimension
+$28-20=8$ has Arf invariant $0$, i.e.\ is of plus type.  Finally
+$C_0^{\perps}=C_0\oplus R$, so $W\cong R$ as quadratic spaces.  The class
+$r$ consists of odd-weight words, so $q(r)=1$.
+\end{proof}
+
+Under the correspondence of Lemma~\ref{lem:ext}, an extension $D$
+determines the Lagrangian $\bar D=D/C_0$ of $W$ (dimension $4$), which
+contains $r$; this is again a bijection onto the $135$ Lagrangians of $W$
+through $r$.
+
+\begin{lemma}\label{lem:extshadow}
+For each extension $D$, the shadow $\Sh(D)$ is a union of $C_0$-cosets,
+and its image in $W$ is the affine solution set
+\[
+\Sh(\bar D)=\{h\in W:\sform{h}{\bar d}=q(\bar d)\ \text{for all }
+\bar d\in\bar D\},
+\]
+a coset of $\bar D$ of size $16$.  Exhaustive enumeration in the canonical
+model of Lemma~\ref{lem:witt} (artifact check
+\texttt{EXT.SHADOW\_INCIDENCE\_8D}) shows: every class in every
+$\Sh(\bar D)$ is singular ($q=0$); among the $128$ classes $h$ with
+$\sform{h}{r}=1$, exactly $72$ are singular, and each of these lies in
+exactly $30$ of the $135$ sets $\Sh(\bar D)$, while the $56$ nonsingular
+ones lie in none ($135\cdot16=72\cdot30=2160$).  Moreover the orthogonal
+group of $(W,q)$ acts transitively on the $120$ anisotropic vectors (the
+transvection orbit of $r$ is enumerated), so the count is independent of
+the choice of $r$ and transfers to the actual quotient by
+Lemma~\ref{lem:witt}.
+\end{lemma}
+
+\begin{proof}
+$C_0\subseteq D_0$ and $C_0\subseteq D\subseteq D_0^{\perps}$, so both
+$D_0^{\perps}$ and $D$ are unions of $C_0$-cosets, hence so is $\Sh(D)$.
+For the affine description, work in $W$: $\bar D$ is Lagrangian and
+$\bar D_0=\ker(q|_{\bar D})$ has dimension $3$, so
+$\Sh(D)/C_0=\bar D_0^{\perp}\setminus\bar D$, of size $2^5-2^4=16$.  A
+class $h$ lies in $\bar D_0^{\perp}$ iff $\sform{h}{\bar d}=0=q(\bar d)$
+for all even $\bar d\in\bar D$, and then $h\notin\bar D=\bar D^{\perp}$
+iff $\sform{h}{\bar d}=1=q(\bar d)$ on the odd coset of $\bar D$.  The
+solution set of the affine system $\sform{h}{\cdot}=q(\cdot)$ on $\bar D$
+is a coset of $\bar D^{\perp}=\bar D$.  The incidence counts and the
+transvection orbit are finite exhaustive computations; transitivity on
+anisotropic vectors supplies an isometry carrying the actual $(W,q,r)$ to
+the canonical model, under which the incidence numbers are preserved.
+\end{proof}
+
+\begin{theorem}[Extension--shadow average]\label{thm:tbar}
+Let $\overline T=\frac{1}{135}\sum_D T^{(D)}$.  Then
+\begin{equation}\label{eq:tbar}
+\overline T_j=
+\begin{cases}
+\dfrac{2}{9}\,S_j, & j\ \text{even},\\[4pt]
+0, & j\ \text{odd}.
+\end{cases}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Fix $j$ and count the pairs $(D,s)$ with $s\in\Sh(D)$, $\wt(s)=j$.  Every
+word of every $\Sh(D)$ lies in $C_0^{\perps}$ (as
+$D_0^{\perps}\subseteq C_0^{\perps}$) and has
+$\sform{s}{r}=q(r)=1$ by the affine description, hence lies in the shadow
+$\mathcal S$ of $C$.  Conversely a shadow word $s$ of weight $j$ has class
+$\bar s$ with $\sform{\bar s}{r}=1$ (Lemma~\ref{lem:shadow}) and
+$q(\bar s)=j\bmod 2$.  If $j$ is even, Lemma~\ref{lem:extshadow} says
+$\bar s$ lies in exactly $30$ of the sets $\Sh(\bar D)$, so $s$ lies in
+exactly $30$ of the sets $\Sh(D)$; if $j$ is odd, in none.  Hence
+$\sum_DT^{(D)}_j=30\,S_j$ for even $j$ and $0$ for odd $j$; divide by
+$135$.
+\end{proof}
+
+Combining \eqref{eq:tshadow}, \eqref{eq:nbar}, and \eqref{eq:tbar} yields,
+for every $j$, an exact linear equation in the $A_i$:
+\begin{equation}\label{eq:family}
+\frac{1}{2^{14}}\sum_i(-1)^i\Bigl(\frac{8A+B}{9}\Bigr)_iK_j(i)
+=\begin{cases}\frac{2}{9}S_j,& j\ \text{even},\\ 0,& j\ \text{odd},\end{cases}
+\qquad B,S\ \text{as in \eqref{eq:mw}, \eqref{eq:eshadow}}.
+\end{equation}
+These fifteen equations, together with \eqref{eq:mw},
+\eqref{eq:dist-eq}, $A_0=1$, $\sum_iA_i=2048$, and
+$\sum_i(-1)^iA_i=0$ (the odd branch has $|C_0|=|C|/2$), constitute the
+\emph{odd-branch constraint family} used below.
+
+\section{The coefficient identity and the three profiles}
+\label{sec:profiles}
+
+\begin{proposition}[Identity 51]\label{prop:id51}
+Every $C$ in the odd branch satisfying \eqref{eq:distance} obeys
+\begin{equation}\label{eq:id51}
+168A_1+28A_2+63A_3+15A_4+14A_5+4A_6+2A_{14}+4E_1+2E_4=51 ,
+\end{equation}
+where $E=B+S$ is the enumerator of $C_0^{\perps}$ as in
+Lemma~\ref{lem:shadow}.
+\end{proposition}
+
+\begin{proof}
+This is an exact linear consequence of the elementary subfamily alone:
+$\sum_{i\ge1}A_i=2047$, $\sum_{i\ \mathrm{even},\ge2}A_i=1023$, the four
+distance rows $\sum_{i\ge1}(K_j(i)-2048\delta_{ij})A_i=-K_j(0)$
+($1\le j\le4$), and the two defining rows
+$\sum_{i\ \mathrm{even},\ge2}K_j(i)A_i-1024E_j=-K_j(0)$ ($j\in\{1,4\}$)
+from \eqref{eq:eshadow}.  The eliminating multipliers are
+\[
+(-147,\,-148,\,-42,\,-42,\,-7,\,-7,\,8,\,4),
+\]
+in the order listed, followed by division by $-2048$: expanding this
+combination with the Krawtchouk values \eqref{eq:kraw} produces
+\eqref{eq:id51} exactly.  The expansion is a mechanical rational
+computation, re-derived from \eqref{eq:kraw} at every artifact run
+(check \texttt{ODD.IDENTITY51}) and independently by the further
+implementations of Section~\ref{sec:verification}.
+\end{proof}
+
+\begin{corollary}[Profile trichotomy]\label{cor:profiles}
+In the odd branch, $A_1=A_3=0$ and
+\[
+(A_2,A_4)\in\{(0,1),\,(0,3),\,(1,1)\} .
+\]
+\end{corollary}
+
+\begin{proof}
+All quantities in \eqref{eq:id51} are nonnegative integers.  From
+$168A_1\le 51$ and $63A_3\le 51$ we get $A_1=A_3=0$.  The left side is
+even except for the term $15A_4$, and the right side is odd, so $A_4$ is
+odd; $15\cdot 5>51$ leaves $A_4\in\{1,3\}$.  If $A_4=3$ the remaining
+budget is $51-45=6$, so $28A_2\le6$ gives $A_2=0$.  If $A_4=1$ the budget
+is $36$ and $28A_2\le 36$ gives $A_2\in\{0,1\}$.
+\end{proof}
+
+The full odd-branch family (including \eqref{eq:family}) then pins the two
+remaining top coefficients.  The following is again an exact elimination,
+machine-verified as an implication (not merely a consistency check) by
+row reduction of the family (artifact check
+\texttt{ANTI.UNIVERSAL\_BRANCH\_FORMULAS}).
+
+\begin{proposition}[Universal branch formulas]\label{prop:universal}
+In the odd branch (so $A_1=A_3=0$),
+\begin{align}
+A_{14}&=36-18A_2-12A_4-12A_5-3A_6-4S_2-2S_4 , \label{eq:a14}\\
+S_3&=\tfrac{105}{2}-6A_2-\tfrac{19}{2}A_4-19A_5-3A_6-18S_2-4S_4 .
+\label{eq:s3}
+\end{align}
+\end{proposition}
+
+All variables appearing here are nonnegative integers (they count words).
+The three profiles are now eliminated in turn.
+
+\section{Profile $(1,1)$}\label{sec:p11}
+
+\begin{proposition}\label{prop:p11}
+Profile $(A_2,A_4)=(1,1)$ is impossible.
+\end{proposition}
+
+\begin{proof}
+Let $w_2$ and $w_4$ be the unique stabilizer words of weights $2$ and $4$.
+Both are even, lie in $C_0$, and commute; writing $a$ for the number of
+coordinates where they agree (with equal nonidentity Pauli) and $b$ for
+the number where both are nonidentity but different, commutation forces
+$b$ even, and $\wt(w_2+w_4)=6-2a-b\in\{2,4,6\}$.  Weight $2$ would force
+$w_2+w_4=w_2$ (as $A_1=0$, $A_2=1$), i.e.\ $w_4=0$; weight $4$ would force
+$w_2+w_4=w_4$, i.e.\ $w_2=0$.  Hence $\wt(w_2+w_4)=6$, the supports are
+disjoint, and $A_6\ge1$.
+
+Substituting $A_2=A_4=1$, $E_1=S_1$, $E_4=1+S_4$ into \eqref{eq:id51}
+gives
+\[
+14A_5+4A_6+2A_{14}+4S_1+2S_4=6 .
+\]
+With $A_6\ge1$: $A_5=0$, $A_6=1$, $S_1=0$, and
+$(A_{14},S_4)\in\{(0,1),(1,0)\}$.  Now \eqref{eq:a14} with
+$A_2=A_4=A_6=1$, $A_5=0$ reads $A_{14}=3-4S_2-2S_4$.  The case
+$(A_{14},S_4)=(0,1)$ forces $S_2=\tfrac14$; the case $(1,0)$ forces
+$S_2=\tfrac12$.  Both contradict the integrality of the shadow coefficient
+$S_2$ (artifact check \texttt{P11.INTEGRALITY}).
+\end{proof}
+
+\section{Profile $(0,1)$}\label{sec:p01}
+
+Here $A_1=A_2=A_3=0$ and $A_4=1$; write $u$ for the unique weight-four
+stabilizer word.  Substituting into \eqref{eq:id51},
+\eqref{eq:a14}, \eqref{eq:s3} and eliminating $A_6$ gives the exact
+formulas (artifact check \texttt{P01.FORMULAS})
+\begin{align}
+A_6&=7-5A_5-4S_2-S_4+2S_1, \label{eq:p01-a6}\\
+A_{14}&=3+3A_5+8S_2+S_4-6S_1, \label{eq:p01-a14}\\
+S_3&=22-4A_5-6S_2-S_4-6S_1. \label{eq:p01-s3}
+\end{align}
+
+We now bound the shadow from the combinatorial side.  Call a
+\emph{bin} a pair (coordinate, nonidentity Pauli); there are
+$14\cdot3=42$ bins, and a weight-three word occupies $3$ bins.
+
+\begin{lemma}\label{lem:p01-s1}
+$S_1\le 1$.  If $S_1=1$ then $S_2=0$ and $S_3\le1$.
+\end{lemma}
+
+\begin{proof}
+Two distinct weight-one shadow words differ by a word of $C^{\perps}$
+(Lemma~\ref{lem:shadow}) of weight $\le2$, hence by
+\eqref{eq:distance} a nonzero word of $C$ of weight $\le2$, contradicting
+$A_1=A_2=0$.  If $h$ has weight $1$ and $h'$ weight $2$, both shadow
+words, then $h+h'\in C$ has weight between $1$ and $3$, contradicting
+$A_1=A_2=A_3=0$; so $S_2=0$.  For weight-three shadow $g$, the word
+$h+g\in C$ has weight $\le4$, hence $h+g=u$ and $g=h+u$ is unique.
+\end{proof}
+
+\begin{lemma}\label{lem:p01-bins}
+Suppose $S_1=0$.  Then among the weight-three shadow words at most one
+pair occupies a common bin, and consequently
+\[
+3S_3\le 42+1,\quad\text{i.e.}\quad S_3\le 14 .
+\]
+If moreover $S_2=1$, then every weight-three shadow word has support
+disjoint from the weight-two shadow word, only $36$ bins are available,
+and $3S_3\le 36+1$, i.e.\ $S_3\le 12$.
+\end{lemma}
+
+\begin{proof}
+If two distinct weight-three shadow words $g,g'$ share a bin, then
+$\wt(g+g')\le 3+3-2=4$ and $g+g'\in C\setminus\{0\}$, so $g+g'=u$: shared-bin
+pairs are \emph{translation pairs} $\{g,g+u\}$.  Normalize
+$u=X_1X_2X_3X_4$ by a coordinate permutation and one-qubit Cliffords
+(these preserve weights, the symplectic form, membership in $C$, $C_0$,
+$C^{\perps}$, and hence every hypothesis; see also
+Lemma~\ref{lem:lc}).  Exhaustive enumeration (artifact checks
+\texttt{P01.COLLISION\_90}, \texttt{P01.S1\_TRANSLATIONS}) shows: there
+are exactly $90$ translation pairs with both members of weight three
+sharing a bin; each shares exactly one bin; and among the
+$\binom{90}{2}=4005$ unordered pairs of distinct translation pairs,
+\emph{none} is compatible, where compatibility means all four cross
+differences between the two pairs are either $u$ or of weight $\ge5$---the
+condition forced on shadow words by \eqref{eq:distance} and
+$A_1=A_2=A_3=0$, $A_4=1$.  Hence at most one translation pair occurs among
+the shadow words, so at most one bin is occupied twice and none thrice
+(a thrice-occupied bin would contain two distinct translation pairs).
+Counting incidences, $3S_3\le 42+1$.
+
+For the second claim let $h$ be the weight-two shadow word and $g$ any
+weight-three shadow word.  Then $h+g\in C^{\perps}$ has weight $\le5$; if
+the weight were $\le4$, then $h+g$ would be a nonzero word of $C$, hence
+equal to $u$, giving $g=h+u$.  But $u\in C_0$ and $h\in C_0^{\perps}$
+give $\sform{h}{u}=0$ and $q(u)=0$, so by Lemma~\ref{lem:q}
+$q(h+u)=q(h)=0$, whereas $q(g)=1$ since $\wt(g)=3$---a contradiction.  So
+$\wt(h+g)=5$ exactly, which for weights $2$ and $3$ means
+$\supp(h)\cap\supp(g)=\emptyset$ (this equivalence is also verified
+exhaustively over all $9828$ weight-three words, artifact check
+\texttt{P01.BINS\_36}).  All weight-three shadow words therefore live on
+the twelve coordinates avoiding $\supp(h)$: $36$ bins, and the repeated-bin
+argument gives $3S_3\le37$.
+\end{proof}
+
+\begin{proposition}\label{prop:p01}
+Profile $(A_2,A_4)=(0,1)$ is impossible.
+\end{proposition}
+
+\begin{proof}
+All variables below are nonnegative integers.  By Lemma~\ref{lem:p01-s1},
+$S_1\le1$ and $S_1=1$ forces $S_2=0$; and when $S_1=0$,
+\eqref{eq:p01-a6} gives $4S_2\le7$, so $S_2\le1$.  Exactly three cases
+remain.
+
+\emph{Case $S_1=1$ (so $S_2=0$, $S_3\le1$).}  By \eqref{eq:p01-s3},
+$S_3=16-4A_5-S_4\le 1$ forces $4A_5+S_4\ge15$, while \eqref{eq:p01-a6}
+gives $A_6=9-5A_5-S_4\ge0$, i.e.\ $5A_5+S_4\le9$.  Then $A_5\le1$; for
+$A_5=0$ we would need $S_4\ge15$ against $S_4\le9$, and for $A_5=1$ we
+would need $S_4\ge11$ against $S_4\le4$.  Empty.
+
+\emph{Case $S_1=0$, $S_2=0$ (so $S_3\le14$).}  Now $S_3=22-4A_5-S_4\le14$
+forces $4A_5+S_4\ge8$, while $A_6=7-5A_5-S_4\ge0$ forces $5A_5+S_4\le7$:
+for $A_5=0$, $S_4\ge8$ versus $S_4\le7$; for $A_5=1$, $S_4\ge4$ versus
+$S_4\le2$; $A_5\ge2$ is excluded.  Empty.
+
+\emph{Case $S_1=0$, $S_2=1$ (so $S_3\le12$).}  Now
+$S_3=16-4A_5-S_4\le12$ forces $4A_5+S_4\ge4$, while
+$A_6=3-5A_5-S_4\ge0$ forces $A_5=0$ and $S_4\le3$, whence $S_4\ge4$,
+a contradiction.  Empty.
+
+The three cases are exhaustive, so no code with profile $(0,1)$ exists.
+(The same ledger is exhausted mechanically, over ranges wider than needed,
+in artifact check \texttt{P01.EXHAUSTED}; removing either bin bound of
+Lemma~\ref{lem:p01-bins} leaves algebraic survivors, so both are genuinely
+load-bearing.)
+\end{proof}
+
+\section{Profile $(0,3)$}\label{sec:p03}
+
+Here $A_1=A_2=A_3=0$ and $A_4=3$: there are exactly three weight-four
+stabilizer words $u,v,w$, all in $C_0$, pairwise commuting.
+
+\begin{lemma}\label{lem:p03-forced}
+In profile $(0,3)$,
+\[
+A_5=A_6=A_{14}=S_1=S_2=S_4=0
+\qquad\text{and}\qquad
+S_3=24 .
+\]
+\end{lemma}
+
+\begin{proof}
+Substituting $A_2=0$, $A_4=3$, $E_1=S_1$, $E_4=3+S_4$ into
+\eqref{eq:id51} gives $45+6+14A_5+4A_6+2A_{14}+4S_1+2S_4=51$, i.e.
+\[
+14A_5+4A_6+2A_{14}+4S_1+2S_4=0 ,
+\]
+so $A_5=A_6=A_{14}=S_1=S_4=0$.  Then \eqref{eq:a14} reads
+$0=36-36-4S_2$, forcing $S_2=0$, and \eqref{eq:s3} gives
+$S_3=\tfrac{105}{2}-\tfrac{57}{2}=24$.
+\end{proof}
+
+\begin{lemma}[Local Clifford normal forms]\label{lem:lc}
+Coordinate permutations and independent one-qubit Clifford operations act
+on $P$ preserving weight, the symplectic form, and $q$; on each coordinate
+the one-qubit Clifford group induces the full symmetric group $S_3$ on
+$\{X,Y,Z\}$.  Up to these operations, the triple $\{u,v,w\}$ is one of
+exactly four forms:
+\begin{itemize}
+\item if $\rk\{u,v,w\}=2$ (i.e.\ $w=u+v$): one of
+\[
+\mathrm{p0}=\begin{pmatrix}XXXX\\ZZZZ\\YYYY\end{pmatrix},\quad
+\mathrm{p1}=\begin{pmatrix}XIXXX\\IXXZZ\\XXIYY\end{pmatrix},\quad
+\mathrm{p2}=\begin{pmatrix}XXIIXX\\IIXXXX\\XXXXII\end{pmatrix}
+\]
+(identity on all unshown coordinates);
+\item if $\rk\{u,v,w\}=3$: the three supports are pairwise disjoint and
+the triple is equivalent to $X^{\otimes4}$ on coordinates $1$--$4$,
+$5$--$8$, $9$--$12$.
+\end{itemize}
+\end{lemma}
+
+\begin{proof}
+In the rank-two case classify the coordinates in
+$\supp(u)\cup\supp(v)$ by the (unordered up to $S_3$-relabelling) type of
+the column $(u_i,v_i)$: the possibilities are $(a,I)$, $(I,b)$, $(a,a)$,
+$(a,b)$ with $a\ne b$ nonidentity, occurring $A,B,C,D$ times.  The three
+nonzero words $u$, $v$, $u+v$ have weights $A+C+D$, $B+C+D$, $A+B+D$, all
+equal to $4$, whence $A=B=C=p$ and $D=4-2p$ with $p\in\{0,1,2\}$
+(commutation is automatic: $\sform{u}{v}=D\bmod2=0$).  Per-coordinate
+$S_3$ freedom maps each column of its type to a fixed representative and
+a coordinate permutation sorts the columns, producing exactly
+$\mathrm{p0},\mathrm{p1},\mathrm{p2}$ for $p=0,1,2$.  In the rank-three
+case, for any two of the three words the sum $u+v\in C_0$ is nonzero of
+even weight; weight $\le4$ would put it in $\{u,v,w\}$ (as
+$A_1=A_2=A_3=0$, $A_4=3$), forcing rank two; weight $6$ is excluded by
+$A_6=0$ (Lemma~\ref{lem:p03-forced}); so $\wt(u+v)=8$ and the supports
+are disjoint, and each column is normalized to $X$.  Exhaustiveness of
+this classification is confirmed independently by brute force: fixing
+$u=X_1X_2X_3X_4$, all $81{,}081$ weight-four words $v$ are enumerated and
+canonicalized (artifact checks \texttt{P03.NORMAL\_FORMS\_4} and the
+JavaScript clean-room enumeration).
+\end{proof}
+
+\begin{proposition}\label{prop:p03}
+Profile $(A_2,A_4)=(0,3)$ is impossible; with
+Propositions~\ref{prop:even}, \ref{prop:p11}, and \ref{prop:p01} this
+completes the proof of Theorem~\ref{thm:main}.
+\end{proposition}
+
+\begin{proof}
+By Lemma~\ref{lem:p03-forced} there are exactly $24$ weight-three shadow
+words.  Each occupies $3$ of the $42$ bins, giving $72$ incidences, so the
+number of unordered pairs of shadow words sharing a bin is at least
+\[
+\sum_{\text{bins}}\binom{n_b}{2}\ \ge\ \sum_{\text{bins}}(n_b-1)\ \ge\
+72-42=30 .
+\]
+As in Lemma~\ref{lem:p01-bins}, any two distinct weight-three shadow words
+sharing a bin differ by a nonzero word of $C$ of weight $\le4$, i.e.\ by
+one of $u,v,w$.  Now fix one of the four normal forms of
+Lemma~\ref{lem:lc} and consider the graph whose vertices are the
+weight-three words commuting with $u,v,w$ (shadow words commute with
+$C_0\supseteq\{u,v,w\}$, so the true shadow words are among these) and
+whose edges join $g$ and $g+x$ ($x\in\{u,v,w\}$) when both have weight
+three and share a bin.  Exhaustive enumeration of all $9{,}828$
+weight-three words (artifact checks \texttt{P03.WORDS\_9828},
+\texttt{P03.DEGREE\_HISTOGRAMS}, \texttt{P03.COLLISION\_CONTRADICTION},
+independently in three implementations) yields, for the four forms, vertex
+degree histograms whose top twenty-four degrees sum to at most
+\[
+24,\quad 24,\quad 26,\quad 56 ,
+\]
+so that \emph{any} $24$ vertices induce at most
+\[
+12,\quad 12,\quad 13,\quad 28
+\]
+edges, respectively.  Every shared-bin pair among the $24$ shadow words is
+an induced edge, so there are at most $28<30$ such pairs.  This
+contradicts the lower bound above in every normal form, and profile
+$(0,3)$ is impossible.
+\end{proof}
+
+\section{Computer verification}\label{sec:verification}
+
+\subsection{What is trusted and what is machine-checked}
+The handwritten kernel of the proof consists of the lemmas proved in full
+above: the stabilizer correspondence, Lemma~\ref{lem:q},
+Proposition~\ref{prop:even} (given its displayed row reduction),
+Lemma~\ref{lem:shadow}, Lemma~\ref{lem:ext}, Lemma~\ref{lem:witt},
+Lemma~\ref{lem:extshadow}, Theorem~\ref{thm:tbar},
+Corollary~\ref{cor:profiles}, and the eliminations of
+Sections~\ref{sec:p11}--\ref{sec:p03}.  The machine supplies exactly the
+following finite facts, each re-derived from first principles at every
+run: the Krawtchouk table \eqref{eq:kraw} and the row reductions behind
+Proposition~\ref{prop:even}, Proposition~\ref{prop:id51} (whose
+multipliers are stated there), and Proposition~\ref{prop:universal}; the
+$6$-dimensional Lagrangian census ($1395$ subspaces, $135$ Lagrangians,
+$15$-fold point incidence); the $O^+(8,2)$ shadow incidence of
+Lemma~\ref{lem:extshadow} ($135$ Lagrangians through $r$, $16$ singular
+shadow classes each, $72$ eligible classes of incidence exactly $30$, and
+the $120$-element transvection orbit); the $90$ translation pairs and the
+$4005$-pair compatibility exhaustion of Lemma~\ref{lem:p01-bins}; the
+disjointness equivalence over all $9828$ weight-three words; the
+$81{,}081$-candidate normal-form exhaustion of Lemma~\ref{lem:lc}; and the
+four collision-degree histograms of Proposition~\ref{prop:p03}.
+
+\subsection{The artifact}
+The proof package contains five result-producing implementations, written
+independently in different representations: a packed-symplectic-integer
+checker ($33$ named checks), a literal-Pauli clean-room checker in Python,
+an exact-rational-algebra checker built on
+\texttt{fractions.Fraction}, a tuple-based finite-geometry enumerator,
+and a separately authored JavaScript enumerator (Node.js).  A single
+command,
+\begin{center}
+\texttt{python3 -I proof/replay.py}
+\end{center}
+runs all five from fresh processes, byte-compares their five JSON
+certificates against re-runs, performs $35$ independent exact
+cross-comparisons, runs $27$ Python proof tests---including $16$ primary
+mutation fixtures, one per compared claims region, each of which must be
+rejected---and the JavaScript clean-room mutation test (six internal
+checks), executes two independently written
+$\code{n,k,d}$ verifiers on calibration codes (the $\code{5,1,3}$ code and
+a published $\code{14,3,4}$ code, whose distances $3$ and $4$ are
+recomputed by full $2^{17}$-element enumeration), and writes an
+SHA-256 manifest over all sources and outputs.  Everything is exact
+integer and rational arithmetic; there is no floating point, no random
+seed, no network access, and no external solver.  The artifact is
+available at
+\url{https://github.com/Mansehej/quantum-14-3-5}
+and as ancillary files with this paper.
+
+\subsection{Independent adversarial verification}
+Beyond its internal cross-checks, the package was subjected to an
+independent adversarial verification campaign (also AI-driven, with
+implementations written from scratch without consulting the package
+code).  That campaign re-derived the complete constraint algebra of
+Sections~\ref{sec:even}--\ref{sec:profiles} from first principles;
+re-enumerated all finite-geometry and collision counts (obtaining, e.g.,
+exact maximum induced edge counts $12,12,13,27$ against the conservative
+bounds $12,12,13,28$ used above); and, most stringently, validated the
+distance-free lemmas empirically on random instances, where every object
+can be enumerated directly: on ten random odd and seven random all-even
+$11$-dimensional isotropic subspaces of $\F_2^{28}$, and on the real
+$\code{14,3,4}$ calibration code, the shadow formula \eqref{eq:eshadow},
+the $135$-extension self-duality and average \eqref{eq:nbar}, the
+per-word $30/135$ incidence law, and the average \eqref{eq:tbar} were
+confirmed exactly, word for word.  The campaign found no mathematical
+flaw.  We stress the epistemic status honestly: all of this is machine
+verification of machine-generated mathematics.  This paper is the
+package's exposure to human review, and the finite certificates are
+designed so that a skeptical reader can re-derive any of them in
+isolation.
+
+\section{Concluding remarks}\label{sec:remarks}
+
+Theorem~\ref{thm:main} settles the entry $(n,k)=(14,3)$ of the stabilizer
+code tables at $d=4$ exactly, resolving a question open since 1998
+\cite{CRSS1998,Grassl}.  Two features of the proof seem worth isolating.
+First, the two averaging identities---\eqref{eq:nbar} over the $135$
+self-dual extensions and \eqref{eq:tbar} over their shadows---are
+completely general for odd stabilizers with $k=3$ (and their analogues
+exist for every $k$): they convert the existence of \emph{many} self-dual
+codes above a given code into linear conditions on the code itself, at
+the price of one finite incidence computation in an orthogonal geometry.
+Second, the endgame is a purely combinatorial collision count among
+weight-three shadow words, of a kind that seems applicable to other
+small-parameter gaps where linear programming with integrality stalls.
+A natural next step is formalization of the lemma layer in a proof
+assistant; the finite certificates are already in a form amenable to
+that.
+
+\subsection*{Acknowledgements}
+The computations described in Section~\ref{sec:verification} were
+performed with open tooling on commodity hardware.  [Optional: add
+acknowledgements.]
+
+\begin{thebibliography}{9}
+
+\bibitem{CRSS1998}
+A.~R. Calderbank, E.~M. Rains, P.~W. Shor, and N.~J.~A. Sloane,
+\emph{Quantum error correction via codes over GF(4)},
+IEEE Trans.\ Inform.\ Theory \textbf{44} (1998), no.~4, 1369--1387.
+arXiv:quant-ph/9608006.
+
+\bibitem{Gottesman1997}
+D.~Gottesman,
+\emph{Stabilizer codes and quantum error correction},
+Ph.D. thesis, California Institute of Technology, 1997.
+arXiv:quant-ph/9705052.
+
+\bibitem{Grassl}
+M.~Grassl,
+\emph{Bounds on the minimum distance of linear codes and quantum codes},
+online tables, \url{http://www.codetables.de}, accessed 2026-07-26.
+
+\bibitem{Rains1999Shadow}
+E.~M. Rains,
+\emph{Quantum shadow enumerators},
+IEEE Trans.\ Inform.\ Theory \textbf{45} (1999), no.~7, 2361--2366.
+arXiv:quant-ph/9611001.
+
+\bibitem{RainsSloane1998}
+E.~M. Rains and N.~J.~A. Sloane,
+\emph{Self-dual codes},
+in: V.~S. Pless and W.~C. Huffman (eds.), Handbook of Coding Theory,
+North-Holland, Amsterdam, 1998, pp.~177--294.
+
+\bibitem{LamPless1990}
+C.~W.~H. Lam and V.~Pless,
+\emph{There is no $(24,12,10)$ self-dual quaternary code},
+IEEE Trans.\ Inform.\ Theory \textbf{36} (1990), no.~5, 1153--1156.
+
+\bibitem{NRS2006}
+G.~Nebe, E.~M. Rains, and N.~J.~A. Sloane,
+\emph{Self-Dual Codes and Invariant Theory},
+Algorithms and Computation in Mathematics 17, Springer, Berlin, 2006.
+
+\bibitem{Grove2002}
+L.~C. Grove,
+\emph{Classical Groups and Geometric Algebra},
+Graduate Studies in Mathematics 39, American Mathematical Society,
+Providence, RI, 2002.
+
+\bibitem{BallCentellesHuber}
+S.~Ball, A.~Centelles, and F.~Huber,
+\emph{Quantum error-correcting codes and their geometries},
+Ann.\ Inst.\ Henri Poincar\'e D \textbf{10} (2023), no.~2, 337--405.
+arXiv:2007.05992.
+
+\end{thebibliography}
+
+\end{document}

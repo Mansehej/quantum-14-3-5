@@ -1,0 +1,6 @@
+{
+  "description": "Omit the rank-two p=2 normal form.",
+  "expected_failure": "P03.NORMAL_FORMS_4",
+  "path": ["normal_forms", "p2"],
+  "value": null
+}

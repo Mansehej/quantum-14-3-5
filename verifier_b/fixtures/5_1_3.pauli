@@ -1,0 +1,6 @@
+# Standard cyclic [[5,1,3]] stabilizer.
+# One generator per line; global phases are omitted.
+XZZXI
+IXZZX
+XIXZZ
+ZXIXZ

@@ -1,0 +1,7 @@
+# Standard cyclic [[5,1,3]] stabilizer.
+# Convention: H=[X_1...X_5|Z_1...Z_5].
+# Pauli generators: XZZXI, IXZZX, XIXZZ, ZXIXZ.
+10010|01100
+01001|00110
+10100|00011
+01010|10001

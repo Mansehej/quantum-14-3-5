@@ -1,0 +1,9 @@
+{
+  "description": "Change the first coefficient of anti-MacWilliams identity IS3 from 1365 to 1366.",
+  "expected_failure": "ANTI.IDENTITY_II",
+  "path": [
+    "anti_identity_ii",
+    0
+  ],
+  "value": 1366
+}

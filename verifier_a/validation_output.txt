@@ -1,0 +1,28 @@
+Command:
+  cd verifier_a
+  python3 -I test_verifier.py
+
+Output:
+PASS standard_five_qubit_code
+PASS table_fourteen_qubit_code
+PASS duplicate_row_rank_corruption
+PASS one_bit_commutation_corruption
+PASS low_weight_logical_rejected
+PASS low_weight_stabilizer_excluded
+PASS dimension_and_bit_validation
+PASS literal_parser
+PASS gray_span_enumerator
+PASS random_small_n_full_pauli_crosscheck
+RANDOM seed=14003005 cases=30
+SUMMARY passed=10 total=10
+
+Golden report assertions exercised by that command:
+five_qubit matrix_sha256=136a761d188e9ec27f0df73a83f5a1a65f38f9e80483f9a6b55fd244f8a91cf5
+five_qubit stabilizer_weights=[1,0,0,0,15,0]
+five_qubit logical_weights=[0,0,0,30,0,18]
+five_qubit distance=3 normalizer_size=64 logical_count=48
+
+table_14_3_4 matrix_sha256=b5bf2521d0e7d3561e8229809bea27b3665419cf0db4d63769e207fc312e85d7
+table_14_3_4 stabilizer_weights=[1,2,1,0,0,6,18,72,249,454,485,376,246,114,24]
+table_14_3_4 logical_weights=[0,0,0,0,105,588,2079,6216,14322,24192,30198,27384,16821,6132,987]
+table_14_3_4 distance=4 normalizer_size=131072 logical_count=129024

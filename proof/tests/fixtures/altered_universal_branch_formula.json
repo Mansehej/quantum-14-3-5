@@ -1,0 +1,10 @@
+{
+  "description": "Change the constant of the universal A14 branch formula from 36 to 35.",
+  "expected_failure": "ANTI.UNIVERSAL_BRANCH_FORMULAS",
+  "path": [
+    "universal_branch_formulas",
+    "A14",
+    "constant"
+  ],
+  "value": 35
+}

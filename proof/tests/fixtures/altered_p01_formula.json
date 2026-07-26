@@ -1,0 +1,10 @@
+{
+  "description": "Change the constant of the p01 S3 formula from 22 to 23.",
+  "expected_failure": "P01.FORMULAS",
+  "path": [
+    "p01_formulas",
+    "S3",
+    "constant"
+  ],
+  "value": 23
+}

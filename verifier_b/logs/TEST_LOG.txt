@@ -1,0 +1,16 @@
+Environment captured 2026-07-24
+node --version
+v22.22.0
+
+Command
+npm run test:deterministic
+
+Exact output
+
+> quantum-14-3-5-verifier-b@1.0.0 test:deterministic
+> node --test --test-reporter=dot test/*.test.js
+
+.........
+
+Exit status: 0
+Interpretation: all 9 deterministic regression tests passed.

@@ -1,0 +1,9 @@
+{
+  "description": "Change the six-dimensional Lagrangian count from 135 to 134.",
+  "expected_failure": "EXT.LAGRANGIAN_6D",
+  "path": [
+    "lagrangian_6d",
+    "lagrangians"
+  ],
+  "value": 134
+}

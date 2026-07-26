@@ -1,0 +1,6 @@
+{
+  "description": "Alter the p2 degree-two population from 72 to 71.",
+  "expected_failure": "P03.DEGREE_HISTOGRAMS",
+  "path": ["collision_tables", "p2", "all_words", 2],
+  "value": 71
+}

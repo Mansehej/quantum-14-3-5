@@ -1,0 +1,73 @@
+{
+  "verifier": "verifier-b-pauli-native-v1",
+  "input": "fixtures/5_1_3.pauli",
+  "report": {
+    "representation": "phase-free Pauli strings over I/X/Y/Z",
+    "n": 5,
+    "generatorCount": 4,
+    "subsetProductCount": 16,
+    "uniqueStabilizerProducts": 16,
+    "generatorRank": 4,
+    "independent": true,
+    "pairwiseCommuting": true,
+    "anticommutingPairs": [],
+    "validStabilizer": true,
+    "k": 1,
+    "maxWeightScanned": 5,
+    "weightCounts": [
+      {
+        "weight": 0,
+        "totalErrors": 1,
+        "commutingCount": 1,
+        "stabilizerCount": 1,
+        "logicalCount": 0
+      },
+      {
+        "weight": 1,
+        "totalErrors": 15,
+        "commutingCount": 0,
+        "stabilizerCount": 0,
+        "logicalCount": 0
+      },
+      {
+        "weight": 2,
+        "totalErrors": 90,
+        "commutingCount": 0,
+        "stabilizerCount": 0,
+        "logicalCount": 0
+      },
+      {
+        "weight": 3,
+        "totalErrors": 270,
+        "commutingCount": 30,
+        "stabilizerCount": 0,
+        "logicalCount": 30
+      },
+      {
+        "weight": 4,
+        "totalErrors": 405,
+        "commutingCount": 15,
+        "stabilizerCount": 15,
+        "logicalCount": 0
+      },
+      {
+        "weight": 5,
+        "totalErrors": 243,
+        "commutingCount": 18,
+        "stabilizerCount": 0,
+        "logicalCount": 18
+      }
+    ],
+    "minLogicalWeight": 3,
+    "logicalWitness": "XYXII"
+  },
+  "expectedCodeCheck": {
+    "expected": {
+      "n": 5,
+      "k": 1,
+      "distance": 3
+    },
+    "pass": true,
+    "failures": []
+  }
+}

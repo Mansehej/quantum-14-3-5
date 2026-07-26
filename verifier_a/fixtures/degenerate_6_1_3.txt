@@ -1,0 +1,7 @@
+# A fixed |0> ancilla tensored with the standard [[5,1,3]] code.
+# The first generator ZIIIII has weight one and is a stabilizer, not a logical.
+000000|100000
+010010|001100
+001001|000110
+010100|000011
+001010|010001

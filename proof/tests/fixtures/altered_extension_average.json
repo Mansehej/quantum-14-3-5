@@ -1,0 +1,10 @@
+{
+  "description": "Change the constant of the 9N5 extension-average formula from 378 to 379.",
+  "expected_failure": "EXT.AVERAGE_IDENTITIES",
+  "path": [
+    "extension_average_formulas",
+    "9N5",
+    "constant"
+  ],
+  "value": 379
+}

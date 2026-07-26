@@ -1,0 +1,17 @@
+# [[14,3,4]] stabilizer transcribed independently from:
+# https://codetables.de/QECC.php?k=3&n=14&q=4
+#
+# The source gives H=[X|Z].  At each qubit this file uses:
+# (x,z) = 00 -> I, 10 -> X, 01 -> Z, 11 -> Y.
+# Source stabilizer-matrix rows 1 through 11 appear in the same order.
+XIIIYIIXZZYZII
+ZIIZXYIZYIYZII
+IXIIZXIXIIIXII
+IZIZYXIZIYZYII
+IIXIXYIIXYYXII
+IIZZZZIIZZYYII
+IIIXIZIIIZXYII
+IIIIIIXXXXXXII
+IIIIIIZZZZZZII
+IIIIIIIIIIIIXI
+IIIIIIIIIIIIIX

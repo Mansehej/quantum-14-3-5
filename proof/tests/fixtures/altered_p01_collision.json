@@ -1,0 +1,9 @@
+{
+  "description": "Change the p01 bin-sharing translation-pair count from 90 to 91.",
+  "expected_failure": "P01.COLLISION_90",
+  "path": [
+    "p01_collision",
+    "pairs"
+  ],
+  "value": 91
+}

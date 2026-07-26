@@ -1,0 +1,22 @@
+{
+  "arithmetic": "Python arbitrary-precision int and fractions.Fraction; JavaScript safe exact integers and proof-critical BigInt division; no tolerance-based or inexact decision",
+  "node": {
+    "executable": "/home/mansehej/.nvm/versions/node/v22.22.0/bin/node",
+    "sha256": "1bec56ef7cfa9a76f3e0b7c0a87f220eb73f23102b9c0b4c7529a3f7c3ce7c31",
+    "version": "v22.22.0"
+  },
+  "proof_dependencies": {
+    "javascript": "Node.js standard library only",
+    "package_manager_invocations": [],
+    "python": "standard library only",
+    "third_party": []
+  },
+  "python": {
+    "executable": "/usr/bin/python3.12",
+    "isolated": true,
+    "optimized": false,
+    "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+    "version": "Python 3.12.3"
+  },
+  "schema": "quantum-14-3-5-proof-runtime-v1"
+}

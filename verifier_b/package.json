@@ -1,0 +1,16 @@
+{
+  "name": "quantum-14-3-5-verifier-b",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Independent Pauli-string stabilizer-code verifier with no external dependencies",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "test:deterministic": "node --test --test-reporter=dot test/*.test.js",
+    "verify:5": "node src/cli.js fixtures/5_1_3.pauli --max-weight 5 --expect-n 5 --expect-k 1 --expect-distance 3",
+    "verify:14": "node src/cli.js fixtures/14_3_4.pauli --max-weight 5 --expect-n 14 --expect-k 3 --expect-distance 4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

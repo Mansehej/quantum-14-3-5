@@ -1,0 +1,6 @@
+{
+  "description": "Change one forced p03 stabilizer-enumerator coefficient.",
+  "expected_failure": "ENUM.P03_FULL",
+  "path": ["p03_enumerators", "A", 8],
+  "value": 208
+}

@@ -1,0 +1,6 @@
+# Corruption of the [[5,1,3]] fixture: row-one qubit one changed X -> Y.
+# The modified row anticommutes with row three.
+YZZXI
+IXZZX
+XIXZZ
+ZXIXZ
