@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exact algebra certificate for the candidate [[14,3,5]] nonexistence proof.
+"""Exact algebra certificate for the [[14,3,5]] nonexistence proof.
 
 This module deliberately uses only Python's standard library and
 ``fractions.Fraction``.  Every polynomial, row reduction, transform, and

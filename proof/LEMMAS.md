@@ -14,7 +14,7 @@ Throughout, \(P=\mathbb F_2^{2n}\) is written \(v=(x\mid z)\), with
 q(x\mid z)=\operatorname{wt}(x\mid z)\pmod2.
 \]
 
-## LEMMA-STAB — binary stabilizer correspondence
+## LEMMA-STAB: binary stabilizer correspondence
 
 After discarding Pauli phases, multiplication is vector addition in \(P\),
 and two Paulis commute exactly when their symplectic product is zero.
@@ -30,7 +30,7 @@ Thus the code has \(k=n-r\) logical qubits and distance
 This proves that the argument covers degeneracy: a low-weight vector in \(C\)
 is allowed, while a low-weight vector in \(C^{\perp_s}\setminus C\) is not.
 
-## LEMMA-Q — Pauli weight is a quadratic refinement
+## LEMMA-Q: Pauli weight is a quadratic refinement
 
 At one coordinate, direct inspection of the 16 ordered pairs in
 \(\{I,X,Y,Z\}^2\) gives
@@ -50,7 +50,7 @@ C_0=\ker(q|_C)
 
 has codimension one.  For the target, \(\dim C=11\) and \(\dim C_0=10\).
 
-## LEMMA-MW — MacWilliams and shadow character sums
+## LEMMA-MW: MacWilliams and shadow character sums
 
 For any additive \(C\subseteq P\), character orthogonality gives
 
@@ -105,7 +105,7 @@ In particular,
 and every shadow word commutes with \(C_0\).  These translation rules are the
 only shadow-coset properties used by the collision arguments.
 
-## LEMMA-EVEN — elimination of the all-even branch
+## LEMMA-EVEN: elimination of the all-even branch
 
 By LEMMA-Q, \(q|_C\) is linear on the isotropic \(C\), so either \(C\)
 contains an odd-weight word (the odd branch, with
@@ -153,7 +153,7 @@ parameterization, and the relation exactly (`EVEN.RREF`,
 `EVEN.CONTRADICTION`), and the exact-algebra checker rederives the same
 relation independently.
 
-## LEMMA-EXT — self-dual extensions and six-dimensional incidence
+## LEMMA-EXT: self-dual extensions and six-dimensional incidence
 
 For the target,
 
@@ -180,7 +180,7 @@ Averaging their weight enumerators gives
 No group-transitivity count is merely inserted: both implementations
 enumerate the incidence independently.
 
-## LEMMA-QUOTIENT-SHADOW — the corrected 30-incidence factor
+## LEMMA-QUOTIENT-SHADOW: the corrected 30-incidence factor
 
 The quotient
 
@@ -255,7 +255,7 @@ This explicit statement prevents the former global-versus-average notation
 error: \(S_2,S_4\) are integers, while their extension-shadow averages are
 \(2S_2/9,2S_4/9\).
 
-## LEMMA-LC — normal-form operations
+## LEMMA-LC: normal-form operations
 
 A coordinate permutation preserves weight, addition, and the symplectic
 form.  On one qubit, a Clifford action permutes \(X,Y,Z\), and every
@@ -281,16 +281,16 @@ four; \(A_2=A_6=0\), and its weight is even and at most eight.  It must
 therefore have weight eight, forcing each pair of supports to be disjoint.
 These are exactly the four generated forms.
 
-## LEMMA-COLLISION — shadow differences
+## LEMMA-COLLISION: shadow differences
 
 If \(s,t\) are shadow words, LEMMA-MW gives
 \(s+t\in C^{\perp_s}\).  Under distance at least five, a difference of weight
 at most four must lie in \(C\).  The branch enumerators identify exactly
 which such stabilizers exist.  If two weight-three words share a
-coordinate--Pauli incidence, their difference has weight at most four; hence
+coordinate-Pauli incidence, their difference has weight at most four; hence
 it must be one of those explicitly enumerated weight-four stabilizers.
 
-## LEMMA-P01-INCIDENCE — the 1, 42, and 36 bounds
+## LEMMA-P01-INCIDENCE: the 1, 42, and 36 bounds
 
 In profile \((A_2,A_4)=(0,1)\), write \(u\) for the unique weight-four
 stabilizer; also \(A_1=A_3=0\).
@@ -309,7 +309,7 @@ all 90 such translation pairs, all \(\binom{90}{2}=4005\) pairs of pairs, and
 finds no two compatible with the rule that every cross-difference is either
 \(u\) or has weight at least five.  It also verifies that every translation
 pair shares exactly one bin.  Hence the total repeated-bin occupancy excess
-is at most one.  With 42 coordinate--Pauli bins and \(3S_3\) incidences,
+is at most one.  With 42 coordinate-Pauli bins and \(3S_3\) incidences,
 \(3S_3-42\leq1\), so \(S_3\leq14\).
 
 Finally suppose \(S_2=1\), with weight-two shadow word \(h\).  For any
@@ -324,8 +324,8 @@ support disjointness.  Only the other 12 coordinates are available, giving
 verify that the algebraic weight-five condition is exactly support
 disjointness.
 
-The remaining p03 uses--four degree histograms and the collision lower and
-upper bounds--are exhaustive finite computations in independent checkers.
+The remaining p03 step uses four degree histograms and exhaustive lower and
+upper collision bounds computed by independent checkers.
 
 ## Trust boundary
 

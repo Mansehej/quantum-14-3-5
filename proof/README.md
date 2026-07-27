@@ -1,7 +1,7 @@
-# Reproducible nonexistence proof
+# Reproducible proof package
 
-This package is the machine-verified proof artifact accompanying the paper
-in [`../paper/`](../paper/): five independent exact implementations, a
+This package is the exact computational artifact accompanying the proof in the
+paper in [`../paper/`](../paper/): five independent exact implementations, a
 one-command offline replay, and mutation-tested certificates.
 
 ## Exact scope
@@ -79,7 +79,7 @@ form, or altering a collision table causes failure.
   the orbit and collision enumerators.  It exhausts the 81,081 fixed-first
   candidates and all 9,828 weight-three words.
 - The four Python test modules run 27 tests, including sixteen primary
-  mutation fixtures — one for every claims region a required check compares —
+  mutation fixtures, one for every claims region a required check compares,
   five clean-room mutations, and direct in-memory mutation tests of the
   replay consensus comparison and generated-artifact hygiene.  The Node.js
   test adds independent omitted-form and altered-table mutations.  The tests

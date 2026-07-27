@@ -1111,7 +1111,7 @@ def main() -> int:
         )
         print(f"SHA256SUMS sha256={manifest_digest}")
         return 0
-    except Exception as error:  # noqa: BLE001 — any failure must leave a FAIL report
+    except Exception as error:  # noqa: BLE001; any failure must leave a FAIL report
         clear_generated()
         failure = f"FAIL proof replay: {error}"
         LOG.append(f"[result] {failure}")

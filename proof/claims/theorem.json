@@ -1,5 +1,5 @@
 {
-  "schema": "quantum-14-3-5-candidate-proof-claims-v1",
+  "schema": "quantum-14-3-5-proof-claims-v1",
   "status": "machine-verified proof claims; see the accompanying paper",
   "even": {
     "elimination_relation": [160, 90, 20, -70]

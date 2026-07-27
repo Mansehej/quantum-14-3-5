@@ -10,10 +10,14 @@ The proof code has no third-party dependencies.
   cross-check and the already independent `verifier_b` calibration suite;
   neither has package dependencies.
 
-All proof arithmetic uses Python arbitrary-precision `int` and
-`fractions.Fraction`.  No float, numerical optimizer, SAT/SMT solver,
-randomness, wall clock, locale-dependent ordering, or network response enters
-a conclusion.
+Proof-critical Python calculations use arbitrary-precision `int` and
+`fractions.Fraction`. The JavaScript checker uses `Number` only within the safe
+exact-integer range and uses `BigInt` for exact divisions. No tolerance-based
+numerical decision is made. The theorem-specific searches are exhaustive and
+deterministic. A fixed-seed randomized regression test is confined to verifier
+calibration; no proof conclusion depends on randomness. No numerical
+optimizer, SAT/SMT solver, wall clock, locale-dependent ordering, or network
+response enters a proof conclusion.
 
 The supported deterministic command is:
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exact finite checks used by the candidate [[14,3,5]] nonexistence proof.
+"""Exact finite checks used by the [[14,3,5]] nonexistence proof.
 
 This module deliberately uses only Python integers and tuples.  It does not
 import the enumerator-algebra implementation.  Pauli words are represented by

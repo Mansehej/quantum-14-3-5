@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exact primary checker for the candidate [[14,3,5]] nonexistence proof.
+"""Exact primary checker for the [[14,3,5]] nonexistence proof.
 
 This program deliberately uses only the Python standard library.  It derives
 the target-specific algebra and exhausts every finite configuration used by
