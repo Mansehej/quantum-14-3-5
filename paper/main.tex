@@ -56,6 +56,9 @@ an eight-dimensional orthogonal geometry of plus type then forces three
 low-weight stabilizer profiles.  Integrality and a collision count among
 weight-three shadow words eliminate these profiles.  All parameter-specific
 calculations are finite and exact, and reproducible source code accompanies the paper.
+The nonexistence theorem is additionally formalized and machine-checked in
+Lean~4 over mathlib, with an axiom audit reporting only standard foundational
+principles.
 \end{abstract}
 
 \maketitle
@@ -133,7 +136,9 @@ bounds their number from above.
 The proof combines the mathematical reductions given here with exhaustive
 finite computations of the parameter-specific coefficients, incidence
 numbers, and collision bounds.  Section~\ref{sec:verification} describes the
-computations and the accompanying source code.
+computations, the accompanying source code, and a Lean~4 formalization of
+Theorem~\ref{thm:main} whose machine-checked proof depends only on the
+standard foundational axioms.
 
 \section{Preliminaries}\label{sec:prelim}
 
@@ -801,6 +806,37 @@ The source and generated certificates are contained in the \texttt{proof/}
 directory.  The complete source distribution is available at
 \url{https://github.com/Mansehej/quantum-14-3-5}.
 
+\subsection{Lean formalization}\label{subsec:lean}
+Theorem~\ref{thm:main} is also formalized and machine-checked in Lean~4
+over the mathlib library.  The formal development, included in the
+\texttt{formal/} directory of the source distribution, models phase-free
+Pauli vectors as $(\F_2\times\F_2)^{14}$ together with the symplectic form,
+Pauli weight, total isotropy, the symplectic normalizer, and logical
+distance, exactly as in Section~\ref{sec:prelim}.  Its final theorems
+exclude an $11$-dimensional totally isotropic subspace all of whose logical
+operators have weight at least five, stated both as a lower bound and as an
+exact minimum distance; low-weight stabilizer elements are permitted
+throughout, so degenerate codes are included.
+
+The formal proof follows the parity split, the profile trichotomy, and the
+profile eliminations of this paper, but derives the universal identities of
+Proposition~\ref{prop:universal} directly, by subtracting the stabilizer
+MacWilliams row from the parity-kernel MacWilliams row.  The self-dual
+extension averages of Section~\ref{sec:shadow} are therefore not inputs to
+the formal theorem: the formalization obtains the same profile constraints
+without them, so the two routes confirm one another.
+
+The development contains no proof placeholders, no additional axioms, and no
+trusted native evaluation.  For every load-bearing theorem, including both
+final formulations, Lean's axiom audit reports only the standard
+foundational principles \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound}; the trusted base is therefore the Lean kernel together
+with the pinned toolchain.  The Lean development does not read the Python or
+JavaScript implementations, their generated certificates, or any recorded
+replay result, and the executable package does not consume Lean outputs; the
+two artifacts therefore verify the theorem independently.  Build and audit
+instructions accompany the source distribution.
+
 \section{Concluding remarks}\label{sec:remarks}
 
 Theorem~\ref{thm:main} establishes $d_{\max}(14,3)=4$, closing the gap
@@ -815,11 +851,15 @@ Second, the final obstruction is a combinatorial collision count among
 weight-three shadow words.  Similar counts may apply to other small-parameter
 problems where the standard linear-programming relaxation and integrality do
 not suffice.  The accompanying source distribution provides exact
-implementations and certificates for every parameter-specific computation.
+implementations and certificates for every parameter-specific computation,
+together with the machine-checked Lean formalization of
+Theorem~\ref{thm:main}.
 
 \subsection*{Acknowledgments}
 The author thanks GPT-5.6 Sol for assistance in developing the proof strategy,
-implementing the exact computations, and preparing the manuscript.
+implementing the exact computations, and constructing the Lean formalization,
+and Claude (Anthropic) for independent adversarial verification and
+assistance in preparing the manuscript.
 
 \begin{thebibliography}{9}
 

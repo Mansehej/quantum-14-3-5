@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 node_modules/
+formal/.lake/
 paper/*.pdf
 paper/*.aux
 paper/*.log

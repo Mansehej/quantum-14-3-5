@@ -1,0 +1,62 @@
+name: Lean
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lean-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: formal
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Install the pinned Lean toolchain
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1.5.0
+        with:
+          lake-package-directory: formal
+          auto-config: false
+          build: false
+          test: false
+          lint: false
+          use-mathlib-cache: false
+          use-github-cache: false
+
+      - name: Fetch the Mathlib build cache
+        run: lake exe cache get
+
+      - name: Reject proof placeholders and unsafe evaluator hooks
+        shell: bash
+        run: |
+          pattern='(^|[^[:alnum:]_])(sorry|admit|unsafe|opaque)([^[:alnum:]_]|$)'
+          pattern="${pattern}|axiom[[:space:]]|native_decide|Lean\.trustCompiler"
+          pattern="${pattern}|implemented_by|extern[[:space:]]"
+          if grep -R -n -E --include='*.lean' "$pattern" \
+              Quantum1435 Quantum1435.lean; then
+            exit 1
+          fi
+
+      - name: Build the default Lean target
+        run: lake build
+
+      - name: Audit theorem axioms
+        run: lake env lean Quantum1435/Axioms.lean
+
+      - name: Build the opt-in p03 cross-check target
+        run: lake build +Quantum1435.P03ThresholdBounds
+
+      - name: Audit opt-in p03 cross-check axioms
+        run: lake env lean Quantum1435/P03OptionalAxioms.lean

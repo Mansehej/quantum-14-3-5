@@ -1,0 +1,88 @@
+import Quantum1435
+
+/-!
+Run this file with `lake env lean Quantum1435/Axioms.lean` from `formal/`.
+
+The final commands audit both formulations of the nonexistence theorem.
+The expected dependencies are standard Lean/mathlib foundations such as
+`propext`, `Quot.sound`, and `Classical.choice`; neither placeholder-proof nor
+compiled-evaluator trust may occur.
+-/
+
+#print axioms Quantum1435.NoBinaryStabilizer1435
+#print axioms Quantum1435.symplecticForm_nondegenerate
+#print axioms Quantum1435.finrank_normalizer_14_11
+#print axioms Quantum1435.finrank_logicalQuotient_14_11
+#print axioms Quantum1435.logicalSymplecticForm_nondegenerate
+#print axioms Quantum1435.parityKernel_finrank
+#print axioms Quantum1435.sum_weightDistribution
+#print axioms Quantum1435.normalizer_weightDistribution_eq_of_lt_distance
+#print axioms Quantum1435.stabilizerCharacter_eq_zero_iff
+#print axioms Quantum1435.sum_binarySign_over_submodule_of_mem_normalizer
+#print axioms Quantum1435.sum_binarySign_over_submodule_of_not_mem_normalizer
+#print axioms Quantum1435.checkLinearCombination_sound
+#print axioms Quantum1435.macWilliams_coefficient_of_fixedWeightCharacterSum
+#print axioms Quantum1435.localCharacterSum_eq_quantum_of_bounds
+#print axioms Quantum1435.fixedWeightCharacterSum_14_4
+#print axioms Quantum1435.no_allEven_candidate
+#print axioms Quantum1435.candidate_containsOddWord
+#print axioms Quantum1435.candidate_profile_trichotomy
+#print axioms Quantum1435.checkEvenCertificate_passes
+#print axioms Quantum1435.noEvenEnumerator
+#print axioms Quantum1435.identity51_of_sourceRows
+#print axioms Quantum1435.sourceRows_profile_trichotomy
+#print axioms Quantum1435.noP11ArithmeticData
+#print axioms Quantum1435.noP01ArithmeticData
+#print axioms Quantum1435.oddBranch_evenWeightTotal
+#print axioms Quantum1435.parityKernelShadowRows
+#print axioms Quantum1435.oddCandidate_profile_trichotomy
+#print axioms Quantum1435.p03_forced_counts
+#print axioms Quantum1435.p03_collision_contradiction
+#print axioms Quantum1435.p11_weightDistribution_six_pos
+#print axioms Quantum1435.shadowWord_pairs_one_with_odd
+#print axioms Quantum1435.shadowWord_add_shadowWord_mem_normalizer
+#print axioms Quantum1435.finrank_shadowQuotient_14_11
+#print axioms Quantum1435.parityKernelNormalizer_weightDistribution_eq_add_shadow
+#print axioms Quantum1435.parityKernelNormalizer_weightDistribution_eq_stabilizer_add_shadow
+#print axioms Quantum1435.p03_semantic_identity_remainder
+#print axioms Quantum1435.p03_semantic_forced_counts
+#print axioms Quantum1435.p03_weightThreeShadowWords_card_eq_24
+#print axioms Quantum1435.pauli_rankTwo_category_arithmetic
+#print axioms Quantum1435.p03_exists_classified_weightFour_triple
+#print axioms Quantum1435.p03_candidate_exists_classified_weightFour_triple
+#print axioms Quantum1435.checkCollisionCertificate_sum_sound
+#print axioms Quantum1435.checkPointwiseMaximum_sound
+#print axioms Quantum1435.isCollision_iff_overlap_two_and_matching_two
+#print axioms Quantum1435.collisionDegree_le_one_of_pairwise_disjoint_support
+#print axioms Quantum1435.rankTwo_p0_edges_le_twelve
+#print axioms Quantum1435.sixty_le_sum_incidenceOccupancy_mul_pred
+#print axioms Quantum1435.p03Shadow_incidenceOccupancy_lower
+#print axioms Quantum1435.p03CategoryC_le_one_of_distinct_weightThreeShadowWords
+#print axioms Quantum1435.add_mem_stabilizer_and_weight_four_of_matching_shadowWords
+#print axioms Quantum1435.sixty_le_card_p03ShadowSharedPairs
+#print axioms Quantum1435.rankTwo_p1_selected_exception_card_le_one
+#print axioms Quantum1435.rankTwo_p1_selected_degree_sum_le_26
+#print axioms Quantum1435.rankTwo_p2_selected_degree_sum_le_56
+#print axioms Quantum1435.p03Shadow_collisionDegree_triple_lower
+#print axioms Quantum1435.p03TripleGeometry_forces_rankTwo1
+#print axioms Quantum1435.p03_candidate_exists_rankTwo1_weightFour_triple
+#print axioms Quantum1435.p03_candidate_false_of_semanticOddUniversalRows
+#print axioms Quantum1435.oddSignedShadow2
+#print axioms Quantum1435.oddSignedShadow3
+#print axioms Quantum1435.oddSignedShadow4
+#print axioms Quantum1435.oddUniversalA14_of_sourceRows
+#print axioms Quantum1435.oddUniversalS3_of_sourceRows
+#print axioms Quantum1435.semanticOddUniversalRows
+#print axioms Quantum1435.p11_candidate_false
+#print axioms Quantum1435.p03_candidate_false
+#print axioms Quantum1435.p01_shadowWeightDistribution_one_le_one
+#print axioms Quantum1435.p01_shadow_one_forces_two_zero_three_le_one
+#print axioms Quantum1435.p01_card_p03ShadowSharedPairs_le_two
+#print axioms Quantum1435.six_mul_selected_card_le_two_mul_bins_card_add_pairSum
+#print axioms Quantum1435.p01_shadowWeightDistribution_three_le_fourteen
+#print axioms Quantum1435.p01BinsAwayFrom_card_of_weight_two
+#print axioms Quantum1435.p01_shadowWeightDistribution_three_le_twelve_of_two_eq_one
+#print axioms Quantum1435.p01_candidate_false
+#print axioms Quantum1435.noCandidate1435
+#print axioms Quantum1435.noBinaryStabilizer1435
+#print axioms Quantum1435.noBinaryStabilizerExact1435

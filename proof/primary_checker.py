@@ -1040,10 +1040,12 @@ def derive_p01(
         {"derived": collision_fact, "claimed": claims["p01_collision"]},
     )
 
-    # Normalize the unique weight-two shadow word to XX.  The parity/distance
-    # argument proves every weight-three shadow word g must commute with h and
-    # have wt(h+g)=5.  Exhaust all 9,828 g and verify that this condition is
-    # equivalent to support disjointness, leaving 12*3=36 incidence bins.
+    # Normalize the unique weight-two shadow word to XX.  The distance and
+    # parity-kernel argument first proves wt(h+g)=5.  The coordinate categories
+    # then force disjoint support, which in turn implies that h and g commute.
+    # Exhaust all 9,828 g and verify the resulting disjoint-support condition,
+    # leaving 12*3=36 incidence bins.  The explicit commutation filter below is
+    # therefore redundant but harmless; it is retained as a consistency check.
     shadow_h = pack_string("XXIIIIIIIIIIII")
     shadow_h_support = {
         coordinate

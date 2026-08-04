@@ -1,8 +1,10 @@
 # Reproducible proof package
 
-This package is the exact computational artifact accompanying the proof in the
-paper in [`../paper/`](../paper/): five independent exact implementations, a
-one-command offline replay, and mutation-tested certificates.
+This `proof/` directory is the exact executable artifact accompanying the proof
+in the paper in [`../paper/`](../paper/): five independent exact
+implementations, a one-command offline replay, and mutation-tested
+certificates. It is a self-contained computational package, separate from the
+repository's Lean formalization under [`../formal/`](../formal/).
 
 ## Exact scope
 
@@ -21,6 +23,20 @@ CSS form, GF(4)-linearity, symmetry, or a restricted ansatz.  It does not
 cover nonadditive, subsystem, entanglement-assisted, qudit, or approximate
 codes.  Pauli phases are discarded exactly as frozen in
 [`../SPECIFICATION.md`](../SPECIFICATION.md).
+
+## Separate Lean formalization
+
+The same nonexistence result is proved independently in Lean 4 under
+[`../formal/`](../formal/). That development formalizes the phase-free Pauli
+space, symplectic commutation, total isotropy, the symplectic normalizer, and
+logical distance, and discharges the mathematical reductions needed for the
+final theorem. It does not import this package's JSON claims, certificates,
+hashes, or `PASS` result.
+
+See the [`Lean formalization guide`](../docs/formalization/MAIN.md) for the
+precise theorem statements, build and axiom-audit commands, proof map, and
+trusted base. The executable package documented here remains useful as an
+independently replayable artifact matching the manuscript's calculations.
 
 ## One-command replay
 
@@ -132,12 +148,16 @@ generated artifact except the manifest itself.
 
 ## Trust boundary
 
-This is executable mathematics, not a formal proof-assistant development.
-The small conceptual bridge is isolated and proved in `LEMMAS.md` and in
-the accompanying paper: MacWilliams character counting, the Pauli-weight
-quadratic refinement, the all-even MacWilliams elimination, the odd-code
-shadow coset, self-dual extensions as Lagrangians, the induced plus-type
-quadratic quotient, and local-Clifford invariance.  Every target-specific
-coefficient, branch, incidence count, orbit, word, and collision
-consequence is machine checked with exact arithmetic by independent
+This `proof/` package is executable mathematics, not itself a proof-assistant
+development. The small conceptual bridge is isolated and proved in
+`LEMMAS.md` and in the accompanying paper: MacWilliams character counting, the
+Pauli-weight quadratic refinement, the all-even MacWilliams elimination, the
+odd-code shadow coset, self-dual extensions as Lagrangians, the induced
+plus-type quadratic quotient, and local-Clifford invariance. Every
+target-specific coefficient, branch, incidence count, orbit, word, and
+collision consequence is machine checked with exact arithmetic by independent
 implementations.
+
+The separate Lean development formalizes an alternative, load-bearing route
+to the theorem and has its own kernel-level trust audit. Neither artifact is
+treated as a trusted input by the other.

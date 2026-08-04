@@ -450,9 +450,12 @@ def p01_certificate() -> dict:
     assert (42 + 1) // 3 == 14
     assert (36 + 1) // 3 == 12
 
-    # If S2=1, the parity/quadratic argument forces every S3 word to commute
-    # with it and have a weight-five sum.  Exhaustively check that this is
-    # exactly disjoint support, leaving 12*3=36 possible bins.
+    # If S2=1, the distance and parity-kernel argument first forces a
+    # weight-five sum with every S3 word.  The coordinate categories then force
+    # disjoint support, which in turn implies commutation.  Exhaustively check
+    # the resulting disjoint-support condition, leaving 12*3=36 possible bins.
+    # The explicit commutation filter below is redundant but harmless and is
+    # retained as a consistency check.
     shadow_w2 = parse_pauli("XX")
     admissible_w3 = [
         g

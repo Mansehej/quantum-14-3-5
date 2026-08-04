@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software or formalization, please cite it using this metadata."
+title: "The Optimal Distance of Fourteen-Qubit Stabilizer Codes Encoding Three Qubits"
+type: software
+authors:
+  - family-names: "Singh"
+    given-names: "Mansehej"
+    email: "mansehej@gmail.com"
+version: 0.1.0
+date-released: 2026-08-04
+repository-code: "https://github.com/Mansehej/quantum-14-3-5"
