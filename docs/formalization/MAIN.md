@@ -111,12 +111,16 @@ the modeling boundary rather than an additional theorem proved here.
    [`P01ShadowLowWeights.lean`](../../formal/Quantum1435/P01ShadowLowWeights.lean)
    handles the low shadow coefficients.
    [`P01InvariantPairs.lean`](../../formal/Quantum1435/P01InvariantPairs.lean)
-   replaces the external 90-orbit/4005-pair enumeration with an invariant
-   argument proving that at most two ordered weight-three shadow pairs share
-   a bin. [`P01IncidenceBounds.lean`](../../formal/Quantum1435/P01IncidenceBounds.lean)
+   proves, by an invariant argument, that at most two ordered weight-three
+   shadow pairs share a bin.
+   [`P01IncidenceBounds.lean`](../../formal/Quantum1435/P01IncidenceBounds.lean)
    proves the 42-bin bound `S₃ ≤ 14`, and
    [`P01ReducedBins.lean`](../../formal/Quantum1435/P01ReducedBins.lean)
-   proves the reduced 36-bin bound `S₃ ≤ 12` when `S₂ = 1`.
+   proves the reduced 36-bin bound `S₃ ≤ 12` when `S₂ = 1`: logical distance,
+   the vanishing low stabilizer coefficients, uniqueness of the weight-four
+   stabilizer word, and the parity-kernel pairing theorem first force the sum
+   of the weight-two and any weight-three shadow word to have weight five,
+   and the coordinate-category identities then force disjoint support.
    [`P01SemanticElimination.lean`](../../formal/Quantum1435/P01SemanticElimination.lean)
    feeds these actual bounds into the checked Presburger contradiction.
 
@@ -127,10 +131,9 @@ the modeling boundary rather than an additional theorem proved here.
 
 ## Computation and certificate boundary
 
-External scripts were useful for discovering identities and candidate
-certificates, but Lean does not trust those generators. The development
-instead proves soundness of the generic integer certificate checker and
-checks concrete identities in the kernel. The large universal-row
+Identities and candidate certificates come from untrusted search. The
+development proves soundness of the generic integer certificate checker and
+checks every concrete identity in the kernel. The large universal-row
 certificates are isolated as pure-`Int` theorems so elaboration remains
 memory-bounded.
 
@@ -143,30 +146,6 @@ the representative-free invariant bounds. The project uses neither
 records proposed exact degree-histogram and certificate values, but asserts no
 theorem accepting those tables. Their validity is deliberately non-load-bearing:
 the invariant bounds are sufficient for the final contradiction.
-
-## Adversarial finding in the p01 replay explanation
-
-During formalization, the original comments in
-[`primary_checker.py`](../../proof/primary_checker.py) and
-[`finite_geometry.py`](../../proof/finite_geometry.py) suggested commuting a
-weight-two shadow word with a weight-three shadow word before establishing
-their sum's weight. That order is not justified merely because both words
-lie in the shadow coset: their sum is known to lie in the normalizer, but the
-two shadow words do not automatically commute with one another. The comments
-in both scripts now state the corrected order below; checker logic and output
-were unchanged.
-
-[`P01ReducedBins.lean`](../../formal/Quantum1435/P01ReducedBins.lean) uses a
-sound order. It first proves that the sum has weight five using logical
-distance, the vanishing low stabilizer coefficients, uniqueness of the
-weight-four stabilizer word, and the parity-kernel pairing theorem. The
-coordinate-category identities then force disjoint support and yield the
-36-bin reduction. Thus the formal result preserves the intended numerical
-bound while correcting the proof explanation; it does not assume the
-unjustified commute-first step. The explicit commutation predicate in the
-two scripts is redundant once weight five is imposed, so it does not change
-their enumerated set. The manuscript itself uses the sound weight-first
-order.
 
 ## Toolchain, verification, and trusted base
 
@@ -188,11 +167,10 @@ rg -n 'sorry|admit|axiom |native_decide|Lean\.trustCompiler' \
   Quantum1435 Quantum1435.lean -g '*.lean'
 ```
 
-The bundled Lake exposes no build-concurrency option, so `lake build` runs
-with Lake's default parallelism. The development is deliberately split into
-many small modules, in particular the linear-combination certificates, so
-that no single module's elaboration is memory-heavy; the full default build
-completes in about a minute on an 8-core, 15 GB machine.
+The development is split into many small modules, in particular the
+linear-combination certificates, so that no single module's elaboration is
+memory-heavy; a full build of the project's modules takes a few minutes on
+commodity hardware.
 
 The independent exact-coordinate p03 route is opt-in:
 
@@ -212,22 +190,7 @@ kernel correctly.
 The audit in [`Axioms.lean`](../../formal/Quantum1435/Axioms.lean) covers the
 load-bearing final route. [`P03OptionalAxioms.lean`](../../formal/Quantum1435/P03OptionalAxioms.lean)
 separately audits the opt-in cross-check. There are no placeholder proofs or
-custom computational assumptions.
-
-Verification on 2026-08-04 completed as follows:
-
-- On a fresh elan installation of the pinned toolchain, with the project's
-  previous build artifacts deleted first, the warning-free default
-  `lake build` re-elaborated every module from source (3,054 jobs in its
-  dependency graph).
-- The warning-free opt-in p03 build succeeded separately (3,016 jobs in its
-  dependency graph).
-- Both assumption-audit files exited successfully. Every audited theorem,
-  including both final formulations, reported only `propext`,
-  `Classical.choice`, and `Quot.sound`.
-- The placeholder, unsafe-hook, and forbidden-token scans returned no
-  matches.
-- The independent executable artifact also replayed successfully:
-  `primary_checks=33`, `independent_comparisons=35`, `manifest_files=66`, with
-  `SHA256SUMS` digest
-  `7b8716cacc69564eac08a6dededac98d617ec0f3e0788a7b32d5e071990fbdfa`.
+custom computational assumptions. Every audited theorem, including both final
+formulations, reports only `propext`, `Classical.choice`, and `Quot.sound`.
+The workflow in [`.github/workflows/lean.yml`](../../.github/workflows/lean.yml)
+repeats the forbidden-token scan, both builds, and both audits on every push.

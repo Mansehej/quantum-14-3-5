@@ -180,7 +180,7 @@ Averaging their weight enumerators gives
 No group-transitivity count is merely inserted: both implementations
 enumerate the incidence independently.
 
-## LEMMA-QUOTIENT-SHADOW: the corrected 30-incidence factor
+## LEMMA-QUOTIENT-SHADOW: the 30-incidence factor
 
 The quotient
 

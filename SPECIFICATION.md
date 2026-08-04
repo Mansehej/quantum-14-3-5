@@ -1,7 +1,6 @@
 # Frozen specification
 
-Audit date: 2026-07-24  
-Timezone: Europe/Berlin
+Frozen: 2026-07-24
 
 ## Target
 

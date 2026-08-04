@@ -35,8 +35,8 @@ hashes, or `PASS` result.
 
 See the [`Lean formalization guide`](../docs/formalization/MAIN.md) for the
 precise theorem statements, build and axiom-audit commands, proof map, and
-trusted base. The executable package documented here remains useful as an
-independently replayable artifact matching the manuscript's calculations.
+trusted base. The executable package documented here is an independently
+replayable artifact matching the manuscript's calculations.
 
 ## One-command replay
 
@@ -60,7 +60,7 @@ enumeration:
    low profiles `(0,1)`, `(0,3)`, `(1,1)`;
 3. all 1,395 three-subspaces of \(\mathbb F_2^6\), the 135 Lagrangians,
    15-fold point incidence, and the average-extension formula;
-4. the corrected eight-dimensional extension-shadow incidence calculation:
+4. the eight-dimensional extension-shadow incidence calculation:
    135 extensions, 72 eligible even classes, and incidence 30, giving
    \(\overline T_j=2S_j/9\) for even global-shadow coefficients;
 5. the self-dual extension basis and two anti-MacWilliams identities;
