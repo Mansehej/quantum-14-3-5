@@ -6,6 +6,7 @@ authors:
   - family-names: "Singh"
     given-names: "Mansehej"
     email: "mansehej@gmail.com"
-version: 0.1.0
-date-released: 2026-08-04
+    affiliation: "Independent Researcher"
+version: 1.0.0
+date-released: 2026-08-10
 repository-code: "https://github.com/Mansehej/quantum-14-3-5"
