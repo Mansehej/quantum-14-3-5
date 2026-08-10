@@ -4,6 +4,7 @@
 \usepackage{amssymb}
 \usepackage[margin=1.2in]{geometry}
 \usepackage{booktabs}
+\usepackage{array}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
 
 \newtheorem{theorem}{Theorem}[section]
@@ -77,6 +78,15 @@ Calderbank, Rains, Shor, and Sloane \cite{CRSS1998}, and the online tables
 maintained by Grassl record the same interval \cite{Grassl}.
 Theorem~\ref{thm:main} closes the interval by excluding distance $5$.
 
+Semidefinite-programming hierarchies applicable to general quantum codes,
+not only stabilizer codes, were introduced in
+\cite{AnglesMunneNemecHuberSDP}.  Subsequent exact rational certificates give,
+for $(n,d)=(14,5)$, the upper bounds $K\le 9$ for arbitrary qubit quantum
+codes and $K\le 8$ for pure codes \cite{AnglesMunneHuberCertificates}.
+These bounds leave $K=8$ unresolved: a $\code{14,3,5}$ stabilizer code has
+$K=2^3=8$, and it may be degenerate.  The present work closes this remaining
+stabilizer case, including degenerate codes.
+
 \begin{theorem}[Main result]\label{thm:main}
 There is no $11$-dimensional isotropic subspace $C\subseteq\F_2^{28}$ with
 \[
@@ -91,6 +101,12 @@ including degenerate codes and stabilizers of arbitrary structure.
 The optimal minimum distance of a binary stabilizer code with $n=14$ and
 $k=3$ is exactly $4$, and the known $\code{14,3,4}$ codes are optimal.
 \end{corollary}
+
+For completeness, Appendix~\ref{app:witness} gives an explicit
+$\code{14,3,4}$ stabilizer, together with the exact verification that its
+eleven generators are independent and commuting and that its logical
+distance is four.  Thus the lower bound used in the corollary is represented
+by a concrete, reproducible witness rather than only by a table entry.
 
 The standard weight-enumerator relaxation with shadow constraints admits a
 rational feasible point at distance $5$, so that relaxation does not exclude
@@ -819,6 +835,11 @@ operators have weight at least five, stated both as a lower bound and as an
 exact minimum distance; low-weight stabilizer elements are permitted
 throughout, so degenerate codes are included.
 
+Contemporaneously, Lean-QEC formalizes stabilizer-code theory in Lean~4 and
+checks distance certificates for explicit qLDPC constructions
+\cite{EhatammEtAlLeanQEC}.  The present development addresses the
+complementary task of proving a finite nonexistence result.
+
 The formal proof follows the parity split, the profile trichotomy, and the
 profile eliminations of this paper, but derives the universal identities of
 Proposition~\ref{prop:universal} directly, by subtracting the stabilizer
@@ -838,6 +859,58 @@ replay result, and the executable package does not consume Lean outputs; the
 two artifacts therefore verify the theorem independently.  Build and audit
 instructions accompany the source distribution.
 
+\subsection{Claim-to-artifact map}\label{subsec:artifact-map}
+Table~\ref{tab:artifact-map} records where the load-bearing claims are checked.
+It is a result-level crosswalk, not a claim that the executable and Lean proofs
+have identical internal structure.  In particular, the extension averages are
+an independently executable route to the profile constraints, whereas the Lean
+proof obtains those constraints from universal MacWilliams identities.  The
+frozen artifact source is commit
+\href{https://github.com/Mansehej/quantum-14-3-5/tree/d07eb90f96d8ef96777fead7b2126dd2a836ec39}{\texttt{d07eb90}};
+the final kernel-checked statement is
+\href{https://github.com/Mansehej/quantum-14-3-5/blob/d07eb90f96d8ef96777fead7b2126dd2a836ec39/formal/Quantum1435/Final.lean#L35}{\texttt{Quantum1435.noBinaryStabilizer1435}}.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.16\textwidth}
+                    >{\raggedright\arraybackslash}p{0.36\textwidth}
+                    >{\raggedright\arraybackslash}p{0.37\textwidth}@{}}
+\toprule
+Manuscript claim & Exact executable check & Lean module or theorem \\
+\midrule
+Symplectic model and distance
+& \path{verifier_a/verifier.py}; \path{verifier_b/src/verifier-b.js}
+& \path{Basic.lean}; \path{Statement.lean} \\
+All-even elimination, Proposition~\ref{prop:even}
+& \path{primary_checker.py}; \path{exact_algebra.py}
+& \path{AllEvenComplete.lean} (\path{no_allEven_candidate}) \\
+Odd identity and profile trichotomy, Proposition~\ref{prop:id51} and Corollary~\ref{cor:profiles}
+& \path{primary_checker.py}; \path{exact_algebra.py}; \path{cleanroom_checker.py}
+& \path{OddIdentityCertificate.lean}; \path{ProfileReduction.lean} \\
+Extension and shadow averages, Lemmas~\ref{lem:ext} and~\ref{lem:extshadow} and Theorem~\ref{thm:tbar}
+& \path{primary_checker.py}; \path{finite_geometry.py}; \path{cleanroom_checker.py}
+& Independent manuscript route; not an input to \path{Final.lean} \\
+Profile $(1,1)$, Proposition~\ref{prop:p11}
+& \path{primary_checker.py}; \path{exact_algebra.py}
+& \path{P11SemanticElimination.lean} (\path{p11_candidate_false}) \\
+Profile $(0,1)$, Proposition~\ref{prop:p01}
+& \path{primary_checker.py}; \path{finite_geometry.py}; \path{cleanroom_checker.py}
+& \path{P01SemanticElimination.lean} (\path{p01_candidate_false}) \\
+Profile $(0,3)$, Proposition~\ref{prop:p03}
+& \path{primary_checker.py}; \path{finite_geometry.py}; \path{cleanroom_checker.py}; \path{cleanroom_checker.js}
+& \path{P03SemanticElimination.lean} (\path{p03_candidate_false}) \\
+Theorem~\ref{thm:main}
+& \path{replay.py}
+& \path{Final.lean} (\path{noBinaryStabilizer1435}); \path{Axioms.lean} \\
+\bottomrule
+\end{tabular}
+\caption{Crosswalk from mathematical claims to independently replayable and
+kernel-checked artifacts.  Unprefixed executable filenames are in
+\texttt{proof/}; Lean filenames are in \texttt{formal/Quantum1435/}.}
+\label{tab:artifact-map}
+\end{table}
+
 \section{Concluding remarks}\label{sec:remarks}
 
 Theorem~\ref{thm:main} establishes $d_{\max}(14,3)=4$, closing the gap
@@ -856,6 +929,47 @@ implementations and certificates for every parameter-specific computation,
 together with the machine-checked Lean formalization of
 Theorem~\ref{thm:main}.
 
+\appendix
+\section{An explicit distance-four witness}\label{app:witness}
+
+For reference, the following eleven phase-free Pauli strings generate a
+$14$-qubit stabilizer.  They are an independent transcription of the
+stabilizer matrix recorded in Grassl's table \cite{Grassl}; at each coordinate
+$I,X,Z,Y$ represent the binary pairs $(0,0),(1,0),(0,1),(1,1)$, respectively.
+
+\begin{center}
+\small
+\begin{tabular}{@{}r@{\quad}l@{\qquad}r@{\quad}l@{}}
+\toprule
+ & Generator & & Generator \\
+\midrule
+1  & \texttt{XIIIYIIXZZYZII} & 7  & \texttt{IIIXIZIIIZXYII} \\
+2  & \texttt{ZIIZXYIZYIYZII} & 8  & \texttt{IIIIIIXXXXXXII} \\
+3  & \texttt{IXIIZXIXIIIXII} & 9  & \texttt{IIIIIIZZZZZZII} \\
+4  & \texttt{IZIZYXIZIYZYII} & 10 & \texttt{IIIIIIIIIIIIXI} \\
+5  & \texttt{IIXIXYIIXYYXII} & 11 & \texttt{IIIIIIIIIIIIIX} \\
+6  & \texttt{IIZZZZIIZZYYII} &    & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Exact row reduction gives rank $11$, and all ${11\choose2}=55$ symplectic
+inner products vanish.  Equivalently, the $2^{11}=2048$ subset products are
+distinct and commute.  Exhaustive bounded Pauli enumeration finds no element
+of $C^{\perps}\setminus C$ of weight at most three; it finds $105$ such
+elements of weight four.  For example, \texttt{XXXXIIIIIIIIII} is a
+weight-four logical operator.  Thus these generators define a
+$\code{14,3,4}$ code.
+
+The fixture is stored at \path{verifier_b/fixtures/14_3_4.pauli}, with its
+coordinate-by-coordinate transcription audit in
+\path{verifier_b/TRANSCRIPTION_AUDIT.md}.  Running
+\begin{center}
+\texttt{python3 -I proof/replay.py}
+\end{center}
+rechecks the witness with two independently implemented verifiers, including
+rank, pairwise commutation, and exact logical distance.
+
 \subsection*{Acknowledgments}
 The author thanks GPT-5.6 Sol (OpenAI) for assistance in developing the proof strategy,
 implementing the exact computations, and constructing the Lean formalization,
@@ -864,7 +978,7 @@ preparation. The systems were used as tools under the author's direction. The
 author verified all outputs and assumes full responsibility; formal verification
 is supplied by the Lean kernel and the released exact checkers.
 
-\begin{thebibliography}{9}
+\begin{thebibliography}{99}
 
 \bibitem{CRSS1998}
 A.~R. Calderbank, E.~M. Rains, P.~W. Shor, and N.~J.~A. Sloane,
@@ -883,6 +997,25 @@ M.~Grassl,
 \emph{Bounds on the minimum distance of linear codes and quantum codes},
 online tables, entry for $(n,k)=(14,3)$,
 \url{https://codetables.de/QECC.php?k=3&n=14&q=4}, accessed 2026-07-26.
+
+\bibitem{AnglesMunneNemecHuberSDP}
+Gerard Angl\`es Munn\'e, Andrew Nemec, and Felix Huber,
+\emph{SDP bounds on quantum codes},
+arXiv:2408.10323v2 [quant-ph], 10 September 2025
+(first submitted 19 August 2024).
+\url{https://arxiv.org/abs/2408.10323}.
+
+\bibitem{AnglesMunneHuberCertificates}
+Gerard Angl\`es Munn\'e and Felix Huber,
+\emph{SDP bounds on quantum codes: rational certificates},
+arXiv:2603.19901v1 [quant-ph], 20 March 2026.
+\url{https://arxiv.org/abs/2603.19901}.
+
+\bibitem{EhatammEtAlLeanQEC}
+Mattias Ehatamm, Yi Lee, Xiaodi Wu, and Runzhou Tao,
+\emph{End-to-End Formalization of Quantum Error Correction},
+arXiv:2605.16523v1 [quant-ph], 15 May 2026.
+\url{https://arxiv.org/abs/2605.16523}.
 
 \bibitem{Rains1999Shadow}
 E.~M. Rains,
