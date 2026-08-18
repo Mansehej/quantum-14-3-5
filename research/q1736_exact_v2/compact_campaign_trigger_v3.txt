@@ -1,0 +1,1 @@
+Trigger the compact fixed-P workflow after the generator and workflow are both present.
