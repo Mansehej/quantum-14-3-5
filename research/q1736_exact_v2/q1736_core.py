@@ -140,30 +140,45 @@ def logical_weights_from_counts(counts: Sequence[int]) -> tuple[int, ...]:
 
 
 def enumerate_p_types() -> list[dict[str, object]]:
-    """Enumerate rank-three P column multisets modulo GL(3,2).
+    """Enumerate feasible rank-three P column multisets modulo GL(3,2).
 
     Coordinate permutations reduce P to the multiplicities of its eight
-    possible columns.  Left multiplication by GL(3,2) only relabels lambda, so
-    the orbit set below covers every rank-three 3x17 binary matrix.
+    possible columns. Left multiplication by GL(3,2) only relabels lambda.
+
+    There are 2967 rank-three orbits in total.  A pure [[17,3,6]] candidate
+    must additionally satisfy wt(P^T lambda) >= 6 for each nonzero lambda,
+    because these are the x=0 logical operators.  Exactly 592 orbits survive
+    that necessary condition; only those complete cases are returned.
     """
     actions = invertible_linear_permutations()
     seen: set[tuple[int, ...]] = set()
-    canonical_types: list[tuple[int, ...]] = []
+    rank_three_types: list[tuple[int, ...]] = []
+    feasible_types: list[tuple[int, ...]] = []
     for counts in weak_compositions(N, 8):
         if counts in seen:
             continue
         orbit = {act_on_counts(counts, action) for action in actions}
         seen.update(orbit)
         canonical = min(orbit)
-        if count_tuple_rank(canonical) == 3:
-            canonical_types.append(canonical)
-    canonical_types.sort()
-    if len(canonical_types) != 592:
+        if count_tuple_rank(canonical) != 3:
+            continue
+        rank_three_types.append(canonical)
+        if min(logical_weights_from_counts(canonical)) >= D:
+            feasible_types.append(canonical)
+    rank_three_types.sort()
+    feasible_types.sort()
+    if len(rank_three_types) != 2967:
         raise AssertionError(
-            f"complete P-orbit enumeration should contain 592 types, found {len(canonical_types)}"
+            "complete rank-three P-orbit enumeration should contain 2967 "
+            f"types, found {len(rank_three_types)}"
+        )
+    if len(feasible_types) != 592:
+        raise AssertionError(
+            "the logical-weight-at-least-six filter should leave 592 P-orbits, "
+            f"found {len(feasible_types)}"
         )
     result: list[dict[str, object]] = []
-    for type_id, counts in enumerate(canonical_types):
+    for type_id, counts in enumerate(feasible_types):
         weights = logical_weights_from_counts(counts)
         result.append(
             {
@@ -238,346 +253,258 @@ def generate_fixed_p_xcnf(
     next_variable = EDGE_VARIABLES + 1
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    digest = hashlib.sha256()
-    with output_path.open("wb", buffering=1024 * 1024) as handle:
-        def emit(text: str) -> None:
-            encoded = text.encode("ascii")
-            handle.write(encoded)
-            digest.update(encoded)
-
-        emit(f"p cnf {total_variables} {total_clauses}\n")
-        generated_xor = 0
-        generated_cnf = 0
-        universe = tuple(range(N))
+    with output_path.open("w", encoding="utf-8") as handle:
+        handle.write(f"p cnf {total_variables} {total_clauses}\n")
         for weight in range(D):
-            for support_tuple in itertools.combinations(universe, weight):
-                support = frozenset(support_tuple)
-                outside = tuple(i for i in universe if i not in support)
+            for support in itertools.combinations(range(N), weight):
+                support_set = set(support)
                 lambdas = range(1, 8) if weight == 0 else range(8)
                 for lam in lambdas:
                     syndrome_variables: list[int] = []
-                    for coordinate in outside:
-                        y_variable = next_variable
+                    for row in range(N):
+                        if row in support_set:
+                            continue
+                        variable = next_variable
                         next_variable += 1
-                        syndrome_variables.append(y_variable)
-                        gamma_variables = [
-                            edge_variable(coordinate, source) for source in support_tuple
-                        ]
-                        constant = parity(lam & columns[coordinate])
-                        # CryptoMiniSat's x-line has right-hand side one.  Thus
-                        #   x -y vars 0  means y XOR vars = 0,
-                        #   x  y vars 0  means y XOR vars = 1.
-                        signed_y = y_variable if constant else -y_variable
-                        literals = " ".join(str(value) for value in (signed_y, *gamma_variables))
-                        emit(f"x {literals} 0\n")
-                        generated_xor += 1
+                        syndrome_variables.append(variable)
+                        xor_literals = [variable]
+                        rhs = parity(lam & columns[row])
+                        for column in support:
+                            xor_literals.append(edge_variable(row, column))
+                        # CryptoMiniSat's `x ... 0` means XOR of literals = 1.
+                        # Negating one literal toggles the right-hand side.
+                        if rhs == 0:
+                            xor_literals[0] = -xor_literals[0]
+                        handle.write("x " + " ".join(map(str, xor_literals)) + " 0\n")
 
                     required = D - weight
-                    clause_size = len(outside) - required + 1
-                    for clause in itertools.combinations(syndrome_variables, clause_size):
-                        emit(" ".join(map(str, clause)) + " 0\n")
-                        generated_cnf += 1
+                    forbidden_zero_count = len(syndrome_variables) - required + 1
+                    for zero_subset in itertools.combinations(
+                        syndrome_variables, forbidden_zero_count
+                    ):
+                        handle.write(" ".join(map(str, zero_subset)) + " 0\n")
 
-    if next_variable - 1 != total_variables:
-        raise AssertionError((next_variable - 1, total_variables))
-    if generated_xor != xor_count or generated_cnf != cnf_count:
-        raise AssertionError((generated_xor, xor_count, generated_cnf, cnf_count))
-
-    metadata: dict[str, object] = {
-        "format": "CryptoMiniSat XOR-DIMACS",
+    if next_variable != total_variables + 1:
+        raise AssertionError(
+            f"variable count mismatch: emitted through {next_variable - 1}, "
+            f"declared {total_variables}"
+        )
+    metadata = {
+        "format": "q1736-fixed-p-xcnf-v1",
         "n": N,
         "k": K,
         "distance_target": D,
-        "p_columns": list(columns),
-        "p_counts": [columns.count(value) for value in range(8)],
-        "logical_weights": [
-            sum(parity(lam & column) for column in columns) for lam in range(1, 8)
-        ],
+        "counts": [columns.count(value) for value in range(8)],
+        "columns": list(columns),
         "edge_variables": EDGE_VARIABLES,
-        "syndrome_auxiliary_variables": xor_count,
-        "total_variables": total_variables,
+        "syndrome_variables": xor_count,
+        "variables": total_variables,
         "xor_clauses": xor_count,
         "cnf_clauses": cnf_count,
-        "total_clauses": total_clauses,
-        "sha256": digest.hexdigest(),
+        "clauses": total_clauses,
+        "sha256": hashlib.sha256(output_path.read_bytes()).hexdigest(),
     }
     if metadata_path is not None:
         metadata_path.parent.mkdir(parents=True, exist_ok=True)
-        metadata_path.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n")
+        metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     return metadata
 
 
-def parse_cms_model(text: str) -> dict[int, bool]:
-    assignments: dict[int, bool] = {}
+def parse_solver_model(text: str, variable_count: int) -> tuple[bool, ...]:
+    if "s SATISFIABLE" not in text:
+        raise ValueError("solver output does not contain a SAT result")
+    assignment = [False] * (variable_count + 1)
+    seen: set[int] = set()
     for line in text.splitlines():
-        stripped = line.strip()
-        if not stripped.startswith("v"):
+        if not line.startswith("v "):
             continue
-        for token in stripped[1:].split():
-            literal = int(token)
+        for literal_text in line[2:].split():
+            literal = int(literal_text)
             if literal == 0:
                 continue
-            assignments[abs(literal)] = literal > 0
-    return assignments
+            variable = abs(literal)
+            if variable <= variable_count:
+                assignment[variable] = literal > 0
+                seen.add(variable)
+    if not all(variable in seen for variable in range(1, EDGE_VARIABLES + 1)):
+        raise ValueError("solver model is missing one or more graph variables")
+    return tuple(assignment)
 
 
-def gamma_rows_from_assignment(assignment: dict[int, bool]) -> tuple[int, ...]:
-    rows = [0] * N
+def graph_columns_from_assignment(assignment: Sequence[bool]) -> tuple[int, ...]:
+    columns = [0] * N
     for variable, (i, j) in enumerate(EDGE_PAIRS, start=1):
-        if assignment.get(variable, False):
-            rows[i] |= 1 << j
-            rows[j] |= 1 << i
-    return tuple(rows)
+        if assignment[variable]:
+            columns[i] |= 1 << j
+            columns[j] |= 1 << i
+    return tuple(columns)
 
 
-def gamma_times(rows: Sequence[int], vector: int) -> int:
+def graph_action(graph_columns: Sequence[int], x: int) -> int:
     result = 0
-    for coordinate, row in enumerate(rows):
-        if parity(row & vector):
+    while x:
+        bit = x & -x
+        column = bit.bit_length() - 1
+        result ^= graph_columns[column]
+        x ^= bit
+    return result
+
+
+def p_transpose_lambda(columns: Sequence[int], lam: int) -> int:
+    result = 0
+    for coordinate, column in enumerate(columns):
+        if parity(lam & column):
             result |= 1 << coordinate
     return result
 
 
-def p_times(columns: Sequence[int], vector: int) -> int:
-    result = 0
-    for row in range(3):
-        mask = sum(1 << i for i, column in enumerate(columns) if (column >> row) & 1)
-        result |= parity(mask & vector) << row
-    return result
-
-
-def pt_times(columns: Sequence[int], lam: int) -> int:
-    return sum(
-        (parity(column & lam) << coordinate)
-        for coordinate, column in enumerate(columns)
-    )
-
-
-def enumerate_span_gray(basis: Sequence[int]) -> Iterator[int]:
-    value = 0
-    previous_gray = 0
-    yield value
-    for index in range(1, 1 << len(basis)):
-        gray = index ^ (index >> 1)
-        changed = gray ^ previous_gray
-        value ^= basis[changed.bit_length() - 1]
-        previous_gray = gray
-        yield value
-
-
-def split_bits(vector: int) -> str:
-    x = "".join(str((vector >> i) & 1) for i in range(N))
-    z = "".join(str((vector >> (N + i)) & 1) for i in range(N))
-    return f"{x}|{z}"
-
-
 def verify_graph_candidate(
-    columns: Sequence[int],
-    assignment: dict[int, bool],
-    exhaustive_normalizer: bool = True,
+    graph_columns: Sequence[int], p_columns: Sequence[int]
 ) -> dict[str, object]:
-    columns = tuple(columns)
-    if len(columns) != N or gf2_rank((value for value in columns if value), 3) != 3:
-        raise ValueError("invalid rank-three P")
-    missing = [variable for variable in range(1, EDGE_VARIABLES + 1) if variable not in assignment]
-    if missing:
-        raise ValueError(f"model omits original variables, beginning with {missing[:5]}")
-    gamma_rows = gamma_rows_from_assignment(assignment)
-    if any((gamma_rows[i] >> i) & 1 for i in range(N)):
-        raise AssertionError("Gamma diagonal is nonzero")
-    for i in range(N):
-        for j in range(N):
-            if ((gamma_rows[i] >> j) & 1) != ((gamma_rows[j] >> i) & 1):
-                raise AssertionError("Gamma is not symmetric")
+    if len(graph_columns) != N or len(p_columns) != N:
+        raise ValueError("candidate must have length 17")
+    if any((graph_columns[i] >> i) & 1 for i in range(N)):
+        raise ValueError("graph has a nonzero diagonal")
+    if any(
+        ((graph_columns[i] >> j) & 1) != ((graph_columns[j] >> i) & 1)
+        for i in range(N)
+        for j in range(N)
+    ):
+        raise ValueError("graph is not symmetric")
+    if gf2_rank((column for column in p_columns if column), K) != K:
+        raise ValueError("P does not have rank three")
 
-    checked_low_weight = 0
-    minimum_checked = 2 * N
-    minimum_checked_pair: tuple[int, int] | None = None
-    universe = tuple(range(N))
-    for support_weight in range(D):
-        for support in itertools.combinations(universe, support_weight):
-            x = sum(1 << coordinate for coordinate in support)
-            lambdas = range(1, 8) if x == 0 else range(8)
-            gx = gamma_times(gamma_rows, x)
-            for lam in lambdas:
-                z = gx ^ pt_times(columns, lam)
-                pauli_weight = (x | z).bit_count()
-                checked_low_weight += 1
-                if pauli_weight < minimum_checked:
-                    minimum_checked = pauli_weight
-                    minimum_checked_pair = (x, lam)
-                if pauli_weight < D:
-                    raise ValueError(
-                        f"candidate has forbidden normalizer representative: "
-                        f"x={x:#x}, lambda={lam}, weight={pauli_weight}"
-                    )
-
-    p_rows = tuple(
-        sum(1 << coordinate for coordinate, column in enumerate(columns) if (column >> row) & 1)
-        for row in range(3)
-    )
-    kernel_basis = gf2_nullspace(p_rows, N)
+    logical_shifts = tuple(p_transpose_lambda(p_columns, lam) for lam in range(8))
+    minimum_normalizer_weight = N + 1
+    witness: tuple[int, int, int] | None = None
+    checked_pairs = 0
+    for x in range(1 << N):
+        gamma_x = graph_action(graph_columns, x)
+        for lam, shift in enumerate(logical_shifts):
+            if x == 0 and lam == 0:
+                continue
+            weight = (x | (gamma_x ^ shift)).bit_count()
+            checked_pairs += 1
+            if weight < minimum_normalizer_weight:
+                minimum_normalizer_weight = weight
+                witness = (x, lam, gamma_x ^ shift)
+    kernel_basis = gf2_nullspace(tuple(p_columns), N)
     if len(kernel_basis) != N - K:
-        raise AssertionError("ker(P) should have dimension 14")
+        raise AssertionError("ker(P) should have dimension fourteen")
+    stabilizer_rows = tuple(x | (graph_action(graph_columns, x) << N) for x in kernel_basis)
+    rank = gf2_rank(stabilizer_rows, 2 * N)
+    if rank != N - K:
+        raise AssertionError("constructed stabilizer does not have rank fourteen")
 
-    h_rows: list[int] = []
-    for x in kernel_basis:
-        z = gamma_times(gamma_rows, x)
-        h_rows.append(x | (z << N))
-    if gf2_rank(h_rows, 2 * N) != N - K:
-        raise AssertionError("constructed stabilizer does not have rank 14")
-    mask = (1 << N) - 1
-    for left_index, left in enumerate(h_rows):
-        lx, lz = left & mask, (left >> N) & mask
-        for right in h_rows[left_index + 1 :]:
-            rx, rz = right & mask, (right >> N) & mask
-            if parity((lx & rz) ^ (lz & rx)):
-                raise AssertionError("constructed stabilizer generators do not commute")
+    def symplectic(left: int, right: int) -> int:
+        mask = (1 << N) - 1
+        left_x, left_z = left & mask, left >> N
+        right_x, right_z = right & mask, right >> N
+        return parity((left_x & right_z) ^ (left_z & right_x))
 
-    minimum_stabilizer_weight = N + 1
-    for x in enumerate_span_gray(kernel_basis):
-        if x == 0:
-            continue
-        minimum_stabilizer_weight = min(
-            minimum_stabilizer_weight,
-            (x | gamma_times(gamma_rows, x)).bit_count(),
-        )
-    if minimum_stabilizer_weight < D:
-        raise AssertionError("candidate is not pure through weight five")
+    isotropic = all(
+        symplectic(left, right) == 0
+        for left, right in itertools.combinations(stabilizer_rows, 2)
+    )
+    if not isotropic:
+        raise AssertionError("constructed stabilizer rows do not commute")
 
-    minimum_logical_weight: int | None = None
-    minimum_logical_witness: tuple[int, int, int] | None = None
-    normalizer_vectors_checked = 0
-    if exhaustive_normalizer:
-        for x in range(1 << N):
-            gx = gamma_times(gamma_rows, x)
-            px = p_times(columns, x)
-            for lam in range(8):
-                if lam == 0 and px == 0:
-                    continue  # exactly the stabilizer C
-                z = gx ^ pt_times(columns, lam)
-                weight = (x | z).bit_count()
-                normalizer_vectors_checked += 1
-                if minimum_logical_weight is None or weight < minimum_logical_weight:
-                    minimum_logical_weight = weight
-                    minimum_logical_witness = (x, z, lam)
-        if minimum_logical_weight is None or minimum_logical_weight < D:
-            raise AssertionError("exhaustive normalizer check failed the target distance")
-
+    minimum_stabilizer_weight = min(
+        (x | graph_action(graph_columns, x)).bit_count()
+        for x in range(1, 1 << N)
+        if all(parity(column & x) == 0 for column in p_columns)
+    )
+    accepted = minimum_normalizer_weight >= D and minimum_stabilizer_weight >= D
     return {
-        "verified": True,
-        "parameters": [N, K, minimum_logical_weight],
-        "target_distance": D,
-        "p_columns": list(columns),
-        "p_counts": [columns.count(value) for value in range(8)],
-        "logical_weights_at_x_zero": [
-            pt_times(columns, lam).bit_count() for lam in range(1, 8)
-        ],
-        "gamma_rows_hex": [hex(row) for row in gamma_rows],
-        "low_weight_pairs_checked": checked_low_weight,
-        "minimum_weight_in_low_support_check": minimum_checked,
-        "minimum_low_support_pair": (
-            None
-            if minimum_checked_pair is None
-            else {"x": hex(minimum_checked_pair[0]), "lambda": minimum_checked_pair[1]}
-        ),
-        "stabilizer_rank": len(kernel_basis),
+        "format": "q1736-verified-graph-candidate-v1",
+        "accepted": accepted,
+        "n": N,
+        "k": K,
+        "distance_target": D,
+        "normalizer_pairs_checked": checked_pairs,
+        "minimum_normalizer_weight": minimum_normalizer_weight,
         "minimum_stabilizer_weight": minimum_stabilizer_weight,
-        "normalizer_vectors_checked": normalizer_vectors_checked,
-        "minimum_logical_weight": minimum_logical_weight,
-        "minimum_logical_witness": (
+        "minimum_witness": (
             None
-            if minimum_logical_witness is None
-            else {
-                "x": hex(minimum_logical_witness[0]),
-                "z": hex(minimum_logical_witness[1]),
-                "lambda": minimum_logical_witness[2],
-            }
+            if witness is None
+            else {"x": witness[0], "lambda": witness[1], "z": witness[2]}
         ),
-        "H_binary_symplectic": [split_bits(row) for row in h_rows],
+        "p_counts": [p_columns.count(value) for value in range(8)],
+        "p_columns": list(p_columns),
+        "graph_columns": list(graph_columns),
+        "stabilizer_rows_packed_xz": list(stabilizer_rows),
     }
 
 
-def self_test() -> dict[str, object]:
-    types = enumerate_p_types()
-    xor_count = expected_xor_count()
-    cnf_count = expected_cnf_count()
-    if xor_count != 936343:
-        raise AssertionError(xor_count)
-    if cnf_count != 1577940:
-        raise AssertionError(cnf_count)
-    eligible = [entry for entry in types if entry["minimum_logical_weight"] >= D]
-    return {
-        "gl_order": len(invertible_linear_permutations()),
-        "all_rank_three_p_orbits": len(types),
-        "eligible_after_x_zero_distance_filter": len(eligible),
-        "xor_count_per_fixed_p_instance": xor_count,
-        "cnf_count_per_fixed_p_instance": cnf_count,
-        "variables_per_fixed_p_instance": EDGE_VARIABLES + xor_count,
-        "clauses_per_fixed_p_instance": xor_count + cnf_count,
-    }
-
-
-def main() -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     subparsers.add_parser("self-test")
 
     list_parser = subparsers.add_parser("list-types")
-    list_parser.add_argument("--output", type=Path, required=True)
-    list_parser.add_argument("--eligible-only", action="store_true")
+    list_parser.add_argument("--output", type=Path)
 
-    generate_parser = subparsers.add_parser("generate")
+    generate_parser = subparsers.add_parser("generate-fixed")
     generate_parser.add_argument("--type-id", type=int, required=True)
     generate_parser.add_argument("--output", type=Path, required=True)
-    generate_parser.add_argument("--metadata", type=Path, required=True)
+    generate_parser.add_argument("--metadata", type=Path)
 
-    verify_parser = subparsers.add_parser("verify")
+    verify_parser = subparsers.add_parser("verify-fixed")
     verify_parser.add_argument("--type-id", type=int, required=True)
     verify_parser.add_argument("--solver-output", type=Path, required=True)
-    verify_parser.add_argument("--report", type=Path, required=True)
-    verify_parser.add_argument("--skip-full-normalizer", action="store_true")
+    verify_parser.add_argument("--output", type=Path)
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     types = enumerate_p_types()
 
     if args.command == "self-test":
-        print(json.dumps(self_test(), indent=2, sort_keys=True))
+        report = {
+            "format": "q1736-core-self-test-v2",
+            "gl3_action_count": len(invertible_linear_permutations()),
+            "rank_three_orbit_count": 2967,
+            "feasible_p_type_count": len(types),
+            "expected_p_type_count": 592,
+            "expected_xor_count": expected_xor_count(),
+            "expected_cnf_count": expected_cnf_count(),
+        }
+        if len(types) != 592:
+            raise AssertionError("self-test did not recover the 592 feasible P-types")
+        print(json.dumps(report, indent=2))
         return 0
 
     if args.command == "list-types":
-        selected = types
-        if args.eligible_only:
-            selected = [entry for entry in types if entry["minimum_logical_weight"] >= D]
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(json.dumps(selected, indent=2, sort_keys=True) + "\n")
+        payload = {"format": "q1736-p-types-v2", "types": types}
+        text = json.dumps(payload, indent=2) + "\n"
+        if args.output:
+            args.output.write_text(text, encoding="utf-8")
+        else:
+            print(text, end="")
         return 0
 
-    if not 0 <= args.type_id < len(types):
-        parser.error("type id is outside [0,591]")
-    entry = types[args.type_id]
-    columns = columns_from_counts(entry["counts"])
+    type_entry = types[args.type_id]
+    counts = tuple(int(value) for value in type_entry["counts"])
+    columns = columns_from_counts(counts)
 
-    if args.command == "generate":
+    if args.command == "generate-fixed":
         metadata = generate_fixed_p_xcnf(columns, args.output, args.metadata)
-        metadata["type"] = entry
-        args.metadata.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n")
-        print(json.dumps(metadata, sort_keys=True))
+        print(json.dumps(metadata, indent=2))
         return 0
 
-    if args.command == "verify":
-        model_text = args.solver_output.read_text(errors="replace")
-        assignment = parse_cms_model(model_text)
-        report = verify_graph_candidate(
-            columns,
-            assignment,
-            exhaustive_normalizer=not args.skip_full_normalizer,
+    if args.command == "verify-fixed":
+        assignment = parse_solver_model(
+            args.solver_output.read_text(encoding="utf-8", errors="replace"),
+            EDGE_VARIABLES,
         )
-        report["type"] = entry
-        args.report.parent.mkdir(parents=True, exist_ok=True)
-        args.report.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
-        print(json.dumps(report, sort_keys=True))
+        graph_columns = graph_columns_from_assignment(assignment)
+        report = verify_graph_candidate(graph_columns, columns)
+        text = json.dumps(report, indent=2) + "\n"
+        if args.output:
+            args.output.write_text(text, encoding="utf-8")
+        else:
+            print(text, end="")
+        if not report["accepted"]:
+            raise SystemExit("solver assignment failed independent verification")
         return 0
 
     raise AssertionError("unreachable")
