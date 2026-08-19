@@ -1,0 +1,1 @@
+Trigger the proof-producing [[17,3,6]] exact SAT campaign after the distance-seven-parent coset reduction.
