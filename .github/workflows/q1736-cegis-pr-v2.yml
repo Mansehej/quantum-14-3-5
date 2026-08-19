@@ -1,0 +1,56 @@
+name: q1736 incremental XOR construction sweep v2
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/q1736_exact_v2/cms_incremental_cegis_v2.py"
+      - "research/q1736_exact_v2/run_cegis_shard_v2.py"
+      - ".github/workflows/q1736-cegis-pr-v2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cegis-shard:
+    name: CEGIS shard ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 175
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install incremental CryptoMiniSat binding
+        run: |
+          set -euxo pipefail
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pycryptosat==5.11.21
+          python3 - <<'PY'
+          import pycryptosat
+          solver=pycryptosat.Solver();solver.add_xor_clause([1,2],False);solver.add_clause([1])
+          sat,model=solver.solve();assert sat and model[1] and model[2]
+          PY
+      - name: Audit exact classification
+        working-directory: research/q1736_exact_v2
+        run: |
+          python3 -m py_compile q1736_core.py cms_incremental_cegis_v2.py run_cegis_shard_v2.py
+          python3 q1736_core.py self-test | tee cegis_self_test.json
+      - name: Run quick complete-type shard
+        working-directory: research/q1736_exact_v2
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/q1736-cegis-results"
+          python3 run_cegis_shard_v2.py --shard "${{ matrix.shard }}" --shards 20 --timeout 180 --results "$GITHUB_WORKSPACE/q1736-cegis-results"
+      - name: Upload exact CEGIS records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: q1736-cegis-v2-shard-${{ matrix.shard }}
+          path: |
+            q1736-cegis-results/**
+            research/q1736_exact_v2/cegis_self_test.json
+          if-no-files-found: warn
+          retention-days: 30

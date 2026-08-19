@@ -1,0 +1,86 @@
+name: q1736 exact fixed-P campaign (PR trigger)
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "research/q1736_exact_v2/**"
+      - ".github/workflows/q1736-exact-pr.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: q1736-exact-pr-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  fixed-p-shard:
+    name: fixed-P shard ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+    steps:
+      - name: Check out the research branch
+        uses: actions/checkout@v4
+
+      - name: Audit the exact generator before solving
+        working-directory: research/q1736_exact_v2
+        run: |
+          set -euxo pipefail
+          python3 -m py_compile q1736_core.py run_shard.py
+          python3 q1736_core.py self-test | tee self_test.json
+          python3 q1736_core.py list-types --eligible-only --output eligible_p_types.json
+          python3 - <<'PY'
+          import json
+          data=json.load(open('eligible_p_types.json'))
+          assert data, 'no eligible fixed-P types were generated'
+          print({'eligible_types': len(data), 'first': data[0], 'last': data[-1]})
+          PY
+
+      - name: Install the official CryptoMiniSat binary
+        run: |
+          set -euxo pipefail
+          mkdir -p "$RUNNER_TEMP/cms"
+          curl --fail --location --retry 5 \
+            https://github.com/msoos/cryptominisat/releases/download/release/v5.14.7/cryptominisat5-v5.14.7-linux-amd64.tar.gz \
+            --output "$RUNNER_TEMP/cms.tar.gz"
+          tar -xzf "$RUNNER_TEMP/cms.tar.gz" -C "$RUNNER_TEMP/cms" --strip-components=1
+          CMS="$(find "$RUNNER_TEMP/cms" -type f -name cryptominisat5 | head -n1)"
+          test -n "$CMS"
+          chmod +x "$CMS"
+          "$CMS" --version
+          echo "CMS=$CMS" >> "$GITHUB_ENV"
+
+      - name: Run the complete shard
+        working-directory: research/q1736_exact_v2
+        run: |
+          set -euxo pipefail
+          mkdir -p "$RUNNER_TEMP/q1736-work" "$GITHUB_WORKSPACE/q1736-results"
+          python3 run_shard.py \
+            --cms "$CMS" \
+            --shard "${{ matrix.shard }}" \
+            --shards 20 \
+            --timeout 600 \
+            --work "$RUNNER_TEMP/q1736-work" \
+            --results "$GITHUB_WORKSPACE/q1736-results"
+
+      - name: Publish the exact shard record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: q1736-fixed-p-pr-shard-${{ matrix.shard }}
+          path: |
+            q1736-results/**
+            research/q1736_exact_v2/self_test.json
+            research/q1736_exact_v2/eligible_p_types.json
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6

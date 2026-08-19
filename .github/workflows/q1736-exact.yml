@@ -1,0 +1,128 @@
+name: Exact [[17,3,6]] SAT campaign
+
+on:
+  push:
+    branches: [research-17-3-6-status]
+    paths:
+      - '.github/workflows/q1736-exact.yml'
+      - 'research/17-3-6/actions/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fixed-logical-types:
+    name: fixed-P ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: p003
+            counts: '0 0 0 0 2 5 5 5'
+          - name: p050
+            counts: '0 0 0 2 3 4 4 4'
+          - name: p264
+            counts: '0 1 2 2 3 3 3 3'
+          - name: p270
+            counts: '0 2 2 2 2 3 3 3'
+          - name: p431
+            counts: '1 1 2 2 2 3 3 3'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install CryptoMiniSat release binary
+        shell: bash
+        run: |
+          set -euxo pipefail
+          curl -L --retry 5 -o cms.tgz https://github.com/msoos/cryptominisat/releases/download/release/v5.14.7/cryptominisat5-v5.14.7-linux-amd64.tar.gz
+          mkdir cms
+          tar -xzf cms.tgz -C cms
+          CMS=$(find cms -type f -name cryptominisat5 | head -1)
+          chmod +x "$CMS"
+          echo "CMS=$CMS" >> "$GITHUB_ENV"
+          "$CMS" --version || true
+      - name: Generate exact fixed-P instance
+        run: |
+          python research/17-3-6/actions/generate_fixedp_xcnf.py instance.cnf --counts "${{ matrix.counts }}" | tee generation.txt
+          ls -lh instance.cnf
+      - name: Solve with native XOR reasoning and proof logging
+        shell: bash
+        run: |
+          set +e
+          timeout 5400 "$CMS" --threads 4 --verb 1 instance.cnf proof.frat > solver.out 2>&1
+          code=$?
+          echo "$code" > solver.exit
+          tail -100 solver.out || true
+          if grep -q '^s SATISFIABLE' solver.out; then
+            python research/17-3-6/actions/verify_fixedp_model.py solver.out --counts "${{ matrix.counts }}" --json verified.json
+          elif grep -q '^s UNSATISFIABLE' solver.out; then
+            gzip -9 proof.frat
+          else
+            rm -f proof.frat
+          fi
+          exit 0
+      - name: Upload exact-search result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: q1736-${{ matrix.name }}
+          path: |
+            generation.txt
+            solver.out
+            solver.exit
+            verified.json
+            proof.frat.gz
+          if-no-files-found: ignore
+          compression-level: 6
+
+  complete-variable-P:
+    name: complete variable-P instance
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install CryptoMiniSat release binary
+        shell: bash
+        run: |
+          set -euxo pipefail
+          curl -L --retry 5 -o cms.tgz https://github.com/msoos/cryptominisat/releases/download/release/v5.14.7/cryptominisat5-v5.14.7-linux-amd64.tar.gz
+          mkdir cms
+          tar -xzf cms.tgz -C cms
+          CMS=$(find cms -type f -name cryptominisat5 | head -1)
+          chmod +x "$CMS"
+          echo "CMS=$CMS" >> "$GITHUB_ENV"
+      - name: Generate complete exact instance
+        run: |
+          python research/17-3-6/actions/generate_full_xcnf.py complete.cnf | tee generation.txt
+          ls -lh complete.cnf
+      - name: Solve complete instance with proof logging
+        shell: bash
+        run: |
+          set +e
+          timeout 18000 "$CMS" --threads 4 --verb 1 complete.cnf proof.frat > solver.out 2>&1
+          code=$?
+          echo "$code" > solver.exit
+          tail -100 solver.out || true
+          if grep -q '^s SATISFIABLE' solver.out; then
+            python research/17-3-6/actions/verify_full_model.py solver.out --json verified.json
+          elif grep -q '^s UNSATISFIABLE' solver.out; then
+            gzip -9 proof.frat
+          else
+            rm -f proof.frat
+          fi
+          exit 0
+      - name: Upload complete-search result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: q1736-complete
+          path: |
+            generation.txt
+            solver.out
+            solver.exit
+            verified.json
+            proof.frat.gz
+          if-no-files-found: ignore
+          compression-level: 6
