@@ -39,16 +39,15 @@ def swap12 (r : DeterministicResponse) : DeterministicResponse :=
 /-- Exact convention concordance: there is no scale or additive shift. -/
 theorem pv_eq_cg_after_swaps (a b : DeterministicResponse) :
     i3322PV a b = i3322CG (swap12 a) (swap12 b) := by
-  cases ha0 : a 0 <;> cases ha1 : a 1 <;> cases ha2 : a 2 <;>
-    cases hb0 : b 0 <;> cases hb1 : b 1 <;> cases hb2 : b 2 <;>
-    norm_num [i3322PV, i3322CG, swap12, bit, ha0, ha1, ha2, hb0, hb1, hb2]
+  simp [i3322PV, i3322CG, swap12]
+  ring
 
 /-- Exhaustive kernel computation of the deterministic/local bound. -/
 theorem deterministic_local_bound (a b : DeterministicResponse) :
     i3322CG a b ≤ 0 := by
   cases ha0 : a 0 <;> cases ha1 : a 1 <;> cases ha2 : a 2 <;>
     cases hb0 : b 0 <;> cases hb1 : b 1 <;> cases hb2 : b 2 <;>
-    norm_num [i3322CG, bit, ha0, ha1, ha2, hb0, hb1, hb2]
+    simp_all [i3322CG, bit]
 
 /-- A deterministic strategy saturating the local bound. -/
 def allZero : DeterministicResponse := fun _ => false
