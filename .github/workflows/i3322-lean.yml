@@ -29,15 +29,14 @@ jobs:
           tar -xzf i3322-lean-source.tar.gz -C i3322-lean
 
       - name: Install pinned Lean toolchain
-        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
-        with:
-          lake-package-directory: i3322-lean
-          auto-config: false
-          build: false
-          test: false
-          lint: false
-          use-mathlib-cache: false
-          use-github-cache: false
+        shell: bash
+        working-directory: .
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | \
+            sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install leanprover/lean4:v4.32.1
 
       - name: Fetch Mathlib cache
         run: |
