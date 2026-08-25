@@ -21,12 +21,21 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
-      - name: Extract formalization source
+      - name: Extract and normalize formalization source
         working-directory: .
+        shell: bash
         run: |
+          set -euo pipefail
           rm -rf i3322-lean
           mkdir i3322-lean
           tar -xzf i3322-lean-source.tar.gz -C i3322-lean
+          if [[ -f i3322-lean/I3322Lean.lean ]]; then
+            mv i3322-lean/I3322Lean.lean i3322-lean/I3322.lean
+          fi
+          sed -i 's/defaultTargets = \["I3322Lean"\]/defaultTargets = ["I3322"]/g' i3322-lean/lakefile.toml
+          sed -i 's/name = "I3322Lean"/name = "I3322"/g' i3322-lean/lakefile.toml
+          sed -i 's/import I3322Lean/import I3322/g' i3322-lean/I3322/AxiomCheck.lean
+          grep -RIl 'I3322Lean\.lean' i3322-lean/*.md | xargs -r sed -i 's/I3322Lean\.lean/I3322.lean/g'
 
       - name: Install pinned Lean toolchain
         shell: bash
