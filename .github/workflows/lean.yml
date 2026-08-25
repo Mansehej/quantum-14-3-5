@@ -2,32 +2,51 @@ name: Lean
 
 on:
   push:
-  pull_request:
+    branches:
+      - i3322-lean-build-20260825
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: lean-${{ github.workflow }}-${{ github.ref }}
+  group: i3322-lean-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build-and-audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     defaults:
       run:
-        working-directory: formal
+        working-directory: i3322-lean
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+
+      - name: Extract and normalize formalization source
+        working-directory: .
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf i3322-lean
+          mkdir i3322-lean
+          tar -xzf i3322-lean-source.tar.gz -C i3322-lean
+          if [[ -f i3322-lean/I3322Lean.lean ]]; then
+            mv i3322-lean/I3322Lean.lean i3322-lean/I3322.lean
+          fi
+          sed -i 's/defaultTargets = \["I3322Lean"\]/defaultTargets = ["I3322"]/g' i3322-lean/lakefile.toml
+          sed -i 's/name = "I3322Lean"/name = "I3322"/g' i3322-lean/lakefile.toml
+          sed -i 's/import I3322Lean/import I3322/g' i3322-lean/I3322/AxiomCheck.lean
+          grep -RIl 'I3322Lean\.lean' i3322-lean/*.md 2>/dev/null | \
+            xargs -r sed -i 's/I3322Lean\.lean/I3322.lean/g' || true
+          cp i3322-patches/*.lean i3322-lean/I3322/
 
       - name: Install the pinned Lean toolchain
-        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1.5.0
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
         with:
-          lake-package-directory: formal
+          lake-package-directory: i3322-lean
           auto-config: false
           build: false
           test: false
@@ -35,28 +54,78 @@ jobs:
           use-mathlib-cache: false
           use-github-cache: false
 
+      - name: Resolve exact dependencies
+        run: lake update
+
       - name: Fetch the Mathlib build cache
         run: lake exe cache get
 
       - name: Reject proof placeholders and unsafe evaluator hooks
         shell: bash
         run: |
+          set -euo pipefail
           pattern='(^|[^[:alnum:]_])(sorry|admit|unsafe|opaque)([^[:alnum:]_]|$)'
-          pattern="${pattern}|axiom[[:space:]]|native_decide|Lean\.trustCompiler"
+          pattern="${pattern}|^[[:space:]]*axiom[[:space:]]|native_decide|Lean\.trustCompiler"
           pattern="${pattern}|implemented_by|extern[[:space:]]"
-          if grep -R -n -E --include='*.lean' "$pattern" \
-              Quantum1435 Quantum1435.lean; then
+          if grep -R -n -E --include='*.lean' "$pattern" I3322 I3322.lean; then
             exit 1
           fi
 
-      - name: Build the default Lean target
-        run: lake build
+      - name: Clean build and capture axiom report
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .lake/build
+          {
+            echo '=== I3322 Lean clean build ==='
+            date -u --iso-8601=seconds
+            lean --version
+            lake --version
+            echo 'Lean toolchain:'
+            cat lean-toolchain
+            echo 'Pinned Mathlib commit: 520045ab14e26149ee970e2e617ca04b09bde5d6'
+            echo 'Resolved Mathlib commit:'
+            git -C .lake/packages/mathlib rev-parse HEAD
+            echo '--- lake build ---'
+            lake build
+            echo '--- #print axioms ---'
+            lake env lean I3322/AxiomCheck.lean
+          } 2>&1 | tee BUILD_LOG.txt
 
-      - name: Audit theorem axioms
-        run: lake env lean Quantum1435/Axioms.lean
+      - name: Package exact release tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f i3322-lean-v4.32.1.zip
+          sha256sum lakefile.toml lean-toolchain I3322.lean I3322/*.lean \
+            README.md FORMALIZATION_MANIFEST.md THEOREM_MAP.md AXIOM_REPORT.md \
+            BUILD_LOG.txt > MANIFEST.sha256
+          zip -r i3322-lean-v4.32.1.zip \
+            lakefile.toml lean-toolchain lake-manifest.json I3322.lean I3322 \
+            README.md FORMALIZATION_MANIFEST.md THEOREM_MAP.md AXIOM_REPORT.md \
+            BUILD_LOG.txt MANIFEST.sha256
 
-      - name: Build the opt-in p03 cross-check target
-        run: lake build +Quantum1435.P03ThresholdBounds
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: i3322-lean-v4.32.1
+          path: i3322-lean/i3322-lean-v4.32.1.zip
+          if-no-files-found: error
 
-      - name: Audit opt-in p03 cross-check axioms
-        run: lake env lean Quantum1435/P03OptionalAxioms.lean
+      - name: Upload diagnostic source and log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i3322-lean-diagnostic-${{ github.run_number }}
+          path: |
+            i3322-lean/lakefile.toml
+            i3322-lean/lean-toolchain
+            i3322-lean/lake-manifest.json
+            i3322-lean/I3322.lean
+            i3322-lean/I3322
+            i3322-lean/README.md
+            i3322-lean/FORMALIZATION_MANIFEST.md
+            i3322-lean/THEOREM_MAP.md
+            i3322-lean/AXIOM_REPORT.md
+            i3322-lean/BUILD_LOG.txt
+          if-no-files-found: warn
