@@ -35,7 +35,8 @@ jobs:
           sed -i 's/defaultTargets = \["I3322Lean"\]/defaultTargets = ["I3322"]/g' i3322-lean/lakefile.toml
           sed -i 's/name = "I3322Lean"/name = "I3322"/g' i3322-lean/lakefile.toml
           sed -i 's/import I3322Lean/import I3322/g' i3322-lean/I3322/AxiomCheck.lean
-          grep -RIl 'I3322Lean\.lean' i3322-lean/*.md | xargs -r sed -i 's/I3322Lean\.lean/I3322.lean/g'
+          grep -RIl 'I3322Lean\.lean' i3322-lean/*.md 2>/dev/null | \
+            xargs -r sed -i 's/I3322Lean\.lean/I3322.lean/g' || true
 
       - name: Install pinned Lean toolchain
         shell: bash
@@ -98,3 +99,21 @@ jobs:
           name: i3322-lean-v4.32.1
           path: i3322-lean/i3322-lean-v4.32.1.zip
           if-no-files-found: error
+
+      - name: Upload diagnostic source and log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i3322-lean-diagnostic-${{ github.run_number }}
+          path: |
+            i3322-lean/lakefile.toml
+            i3322-lean/lean-toolchain
+            i3322-lean/lake-manifest.json
+            i3322-lean/I3322.lean
+            i3322-lean/I3322
+            i3322-lean/README.md
+            i3322-lean/FORMALIZATION_MANIFEST.md
+            i3322-lean/THEOREM_MAP.md
+            i3322-lean/AXIOM_REPORT.md
+            i3322-lean/BUILD_LOG.txt
+          if-no-files-found: warn
