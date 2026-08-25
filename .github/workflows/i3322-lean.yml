@@ -37,6 +37,7 @@ jobs:
           sed -i 's/import I3322Lean/import I3322/g' i3322-lean/I3322/AxiomCheck.lean
           grep -RIl 'I3322Lean\.lean' i3322-lean/*.md 2>/dev/null | \
             xargs -r sed -i 's/I3322Lean\.lean/I3322.lean/g' || true
+          cp i3322-patches/*.lean i3322-lean/I3322/
 
       - name: Install pinned Lean toolchain
         shell: bash
