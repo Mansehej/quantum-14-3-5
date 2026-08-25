@@ -59,7 +59,8 @@ theorem analytic_upper_factorization (x : ℝ) :
   dsimp
   have hs : (Real.sqrt 5) ^ 2 = 5 := by norm_num
   ring_nf
-  nlinarith [hs]
+  simp only [hs]
+  ring
 
 /-- The elementary constant is strictly below one third. -/
 theorem golden_upper_lt_one_third :

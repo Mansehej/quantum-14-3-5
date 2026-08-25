@@ -91,7 +91,7 @@ theorem bell_observable_expansion (A₁ A₂ A₃ B₁ B₂ B₃ : R) :
       - (refl A₁ - refl A₂) * refl B₃
       - refl A₃ * (refl B₁ - refl B₂) := by
   simp only [bellPV, refl]
-  noncomm_ring <;> abel
+  noncomm_ring <;> abel_nf
 
 /-- Cross-party commutation permits the audited Bob-before-Alice ordering. -/
 theorem commute_final_cross_term (A₃ B₁ B₂ : R)
