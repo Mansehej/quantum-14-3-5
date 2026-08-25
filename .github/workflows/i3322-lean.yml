@@ -47,7 +47,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if grep -R -n -E --include='*.lean' '(^|[^[:alnum:]_])(sorry|admit|unsafe)([^[:alnum:]_]|$)|^[[:space:]]*(axiom|opaque)[[:space:]]' I3322 I3322Lean.lean; then
+          if grep -R -n -E --include='*.lean' '(^|[^[:alnum:]_])(sorry|admit|unsafe)([^[:alnum:]_]|$)|^[[:space:]]*(axiom|opaque)[[:space:]]' I3322 I3322.lean; then
             exit 1
           fi
 
@@ -75,11 +75,11 @@ jobs:
         run: |
           set -euo pipefail
           rm -f i3322-lean-v4.32.1.zip
-          sha256sum lakefile.toml lean-toolchain I3322Lean.lean I3322/*.lean \
+          sha256sum lakefile.toml lean-toolchain I3322.lean I3322/*.lean \
             README.md FORMALIZATION_MANIFEST.md THEOREM_MAP.md AXIOM_REPORT.md \
             BUILD_LOG.txt > MANIFEST.sha256
           zip -r i3322-lean-v4.32.1.zip \
-            lakefile.toml lean-toolchain lake-manifest.json I3322Lean.lean I3322 \
+            lakefile.toml lean-toolchain lake-manifest.json I3322.lean I3322 \
             README.md FORMALIZATION_MANIFEST.md THEOREM_MAP.md AXIOM_REPORT.md \
             BUILD_LOG.txt MANIFEST.sha256
 
